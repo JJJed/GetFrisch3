@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-4EDLVBXN3C"></script>
+
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-4EDLVBXN3C');
+  </script>
+
+  <meta charset="utf-8">
+  <title>GetFrisch!</title>
+
+  <link href="style/main.css" rel="stylesheet" type="text/css">
+  <link rel="shortcut icon" href="favicon.ico">
+  <link rel="apple-touch-icon" href="meta/cougar.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <meta name="format-detection" content="telephone=no">
+
+  <!-- Google Sign-In -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <style>
+    /* Auth Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 10000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.6);
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 5% auto;
+      padding: 30px;
+      border: 1px solid #888;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    @media screen and (max-width: 520px) {
+      .modal-content {
+        margin: 2% auto;
+        padding: 20px;
+        width: 95%;
+        max-height: 95vh;
+      }
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 32px;
+      font-weight: bold;
+      cursor: pointer;
+      line-height: 20px;
+      min-width: 44px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: #000;
+    }
+
+    @media screen and (max-width: 520px) {
+      .close {
+        font-size: 36px;
+        min-width: 48px;
+        min-height: 48px;
+      }
+    }
+
+    .auth-form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .auth-form input {
+      padding: 14px;
+      border: 2px solid #8A8B8C;
+      border-radius: 6px;
+      font-size: 16px;
+      min-height: 44px;
+      box-sizing: border-box;
+    }
+
+    .auth-form button {
+      padding: 14px;
+      background-color: #A31F34;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      font-weight: bold;
+      min-height: 48px;
+      transition: background-color 0.2s;
+    }
+
+    .auth-form button:hover {
+      background-color: #8A1829;
+    }
+
+    @media screen and (max-width: 520px) {
+      .auth-form input {
+        padding: 12px;
+        font-size: 16px;
+      }
+
+      .auth-form button {
+        padding: 14px;
+        font-size: 16px;
+      }
+
+      .auth-form h3 {
+        font-size: 20px;
+        margin-top: 10px;
+      }
+    }
+
+    .auth-toggle {
+      text-align: center;
+      margin-top: 15px;
+      color: #666;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .auth-toggle a {
+      color: #A31F34;
+      cursor: pointer;
+      text-decoration: underline;
+      padding: 5px;
+      display: inline-block;
+    }
+
+    @media screen and (max-width: 520px) {
+      .auth-toggle {
+        font-size: 15px;
+        line-height: 2;
+      }
+
+      .auth-toggle a {
+        padding: 8px;
+      }
+    }
+
+    .user-info {
+      display: none;
+      padding: 12px;
+      background-color: rgba(238, 228, 218, 0.8);
+      border-radius: 6px;
+      margin-bottom: 15px;
+      text-align: center;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .user-info .username {
+      font-weight: bold;
+      color: #A31F34;
+      font-size: 16px;
+    }
+
+    .user-info .verified-badge {
+      color: #4CAF50;
+      margin-left: 5px;
+    }
+
+    .user-info button {
+      margin-left: 15px;
+      padding: 6px 14px;
+      background-color: #8A8B8C;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.2s;
+    }
+
+    .user-info button:hover {
+      background-color: #6A6B6C;
+    }
+
+    .auth-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+
+    .auth-buttons button {
+      padding: 10px 20px;
+      background-color: #A31F34;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: background-color 0.2s;
+      min-height: 44px;
+      min-width: 120px;
+    }
+
+    .auth-buttons button:hover {
+      background-color: #8A1829;
+    }
+
+    @media screen and (max-width: 520px) {
+      .user-info {
+        font-size: 14px;
+        padding: 10px;
+      }
+
+      .user-info .username {
+        font-size: 14px;
+      }
+
+      .user-info button {
+        margin-left: 10px;
+        padding: 8px 12px;
+        font-size: 13px;
+      }
+
+      .auth-buttons button {
+        font-size: 14px;
+        padding: 12px 18px;
+      }
+    }
+
+    .error-message {
+      color: #d32f2f;
+      font-size: 14px;
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    .leaderboard-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    .leaderboard-table th,
+    .leaderboard-table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+      white-space: nowrap;
+    }
+
+    .leaderboard-table th {
+      background-color: #A31F34;
+      color: white;
+      font-weight: bold;
+    }
+
+    .leaderboard-table tr:hover {
+      background-color: #f5f5f5;
+    }
+
+    .leaderboard-table .rank {
+      font-weight: bold;
+      color: #A31F34;
+    }
+
+    .leaderboard-table .verified {
+      color: #4CAF50;
+      font-size: 12px;
+      display: inline;
+      margin-left: 4px;
+    }
+
+    .leaderboard-table .player-name {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      flex-wrap: nowrap;
+    }
+
+    .leaderboard-table .best-tile {
+      font-weight: 600;
+      color: #A31F34;
+      white-space: nowrap;
+    }
+
+    #leaderboard-container {
+      margin-top: 20px;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: #666;
+    }
+
+    /* Google Sign-In Styles */
+    .auth-divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      margin: 20px 0;
+      color: #666;
+    }
+
+    .auth-divider::before,
+    .auth-divider::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .auth-divider span {
+      padding: 0 10px;
+      font-size: 14px;
+    }
+
+    .google-signin-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+      min-height: 48px;
+      width: 100%;
+    }
+
+    /* Ensure Google button is sized properly and centered */
+    .google-signin-container > div {
+      width: 100% !important;
+      max-width: 100% !important;
+      height: 48px !important;
+      display: flex !important;
+      justify-content: center !important;
+      align-items: center !important;
+    }
+
+    /* Force Google button iframe to fill container */
+    .google-signin-container iframe {
+      width: 100% !important;
+      max-width: 100% !important;
+      min-width: 100% !important;
+      height: 48px !important;
+      min-height: 48px !important;
+    }
+
+    /* Ensure the inner button element stretches full width */
+    .google-signin-container div[role="button"] {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+
+    @media screen and (max-width: 520px) {
+      .google-signin-container {
+        margin: 0;
+      }
+    }
+
+    /* Prevent double-tap zoom on buttons for mobile Safari */
+    button, a, .close {
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+    }
+
+    /* Smooth scrolling for modal on iOS */
+    @supports (-webkit-overflow-scrolling: touch) {
+      .modal-content {
+        -webkit-overflow-scrolling: touch;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Auth Modal -->
+  <div id="authModal" class="modal">
+    <div class="modal-content">
+      <div style="overflow: auto; margin-bottom: 10px;">
+        <span class="close" onclick="closeAuthModal()">&times;</span>
+        <h2 id="authTitle" style="margin: 0; padding-top: 10px;">Welcome to GetFrisch</h2>
+      </div>
+
+      <div id="authForms">
+        <!-- Anonymous Login Form -->
+        <div id="anonymousForm" class="auth-form">
+          <h3>Play Anonymously</h3>
+          <input type="text" id="anonUsername" placeholder="Enter your name" required>
+          <button onclick="loginAnonymous()">Start Playing</button>
+
+          <div class="auth-divider"><span>or</span></div>
+
+          <div class="google-signin-container">
+            <div id="googleButtonAnon"></div>
+          </div>
+
+          <div class="auth-toggle">
+            <a onclick="showRegisterForm()">create an account</a> | <a onclick="showLoginForm()">login</a>
+          </div>
+        </div>
+
+        <!-- Login Form -->
+        <div id="loginForm" class="auth-form" style="display: none;">
+          <h3>Login</h3>
+          <input type="text" id="loginUsername" placeholder="Username" required>
+          <input type="password" id="loginPassword" placeholder="Password" required>
+          <button onclick="login()">Login</button>
+
+          <div class="auth-divider"><span>or</span></div>
+
+          <div class="google-signin-container">
+            <div id="googleButtonLogin"></div>
+          </div>
+
+          <div class="auth-toggle">
+            <a onclick="showAnonymousForm()">Play anonymously</a> | <a onclick="showRegisterForm()">Create account</a>
+          </div>
+        </div>
+
+        <!-- Register Form -->
+        <div id="registerForm" class="auth-form" style="display: none;">
+          <h3>Create Account</h3>
+          <input type="text" id="regUsername" placeholder="Username" required>
+          <input type="email" id="regEmail" placeholder="Email (optional)">
+          <input type="password" id="regPassword" placeholder="Password (min 6 chars)" required>
+          <button onclick="register()">Create Account</button>
+
+          <div class="auth-divider"><span>or</span></div>
+
+          <div class="google-signin-container">
+            <div id="googleButtonRegister"></div>
+          </div>
+
+          <div class="auth-toggle">
+            <a onclick="showAnonymousForm()">Play anonymously</a> | <a onclick="showLoginForm()">Login</a>
+          </div>
+        </div>
+      </div>
+
+      <div id="authError" class="error-message"></div>
+    </div>
+  </div>
+
+  <!-- Username Selection Modal for Google Sign-in -->
+  <div id="usernameModal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <h2>Choose Your Username</h2>
+      <p style="color: #666; margin-bottom: 20px;">Welcome! Please choose a username for your account.</p>
+
+      <div class="auth-form">
+        <input type="text" id="googleUsername" placeholder="Enter username" required maxlength="20" onkeypress="if(event.key==='Enter') completeGoogleSignup()">
+        <button onclick="completeGoogleSignup()">Continue</button>
+        <div id="usernameError" class="error-message"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- User Info Bar -->
+    <div id="userInfo" class="user-info"></div>
+
+    <div id="authButtons" class="auth-buttons">
+      <button onclick="showAuthModal()">Login / Register</button>
+    </div>
+
+    <div class="heading">
+      <h1 class="title">GetFrisch</h1>
+      <div class="scores-container">
+        <div class="score-container">0</div>
+        <div class="best-container">0</div>
+      </div>
+    </div>
+    <p class="game-intro">Combine other Yeshiva League High Schools to reach the <span onclick="document.body.style.background='url(img/petey.png)';">almighty <strong>Frisch!</strong></span></p>
+
+    <div class="game-container" id="game">
+      <div class="game-message">
+        <p></p>
+        <div class="lower">
+	        <a class="keep-playing-button">Keep going</a>
+          <a class="retry-button">Try again</a>
+        </div>
+      </div>
+
+      <div class="grid-container">
+        <div class="grid-row">
+          <div class="grid-cell"></div>
+          <div class="grid-cell"></div>
+          <div class="grid-cell"></div>
+          <div class="grid-cell"></div>
+        </div>
+        <div class="grid-row">
+          <div class="grid-cell"></div>
+          <div class="grid-cell"></div>
+          <div class="grid-cell"></div>
+          <div class="grid-cell"></div>
+        </div>
+        <div class="grid-row">
+          <div class="grid-cell"></div>
+          <div class="grid-cell"></div>
+          <div class="grid-cell"></div>
+          <div class="grid-cell"></div>
+        </div>
+        <div class="grid-row">
+          <div class="grid-cell"></div>
+          <div class="grid-cell"></div>
+          <div class="grid-cell"></div>
+          <div class="grid-cell"></div>
+        </div>
+      </div>
+
+      <div class="tile-container">
+
+      </div>
+    </div>
+
+    <p class="game-explanation">
+      <strong class="important">How to play:</strong> Use your <strong>arrow keys</strong> to move the tiles. When two tiles with the same school touch, they <strong>merge into one!</strong>
+      <br><strong class="important">Note:</strong> The order of schools is not intended to be a ranking (boo), but a rough east-to-west geographical path to Frisch.
+    </p>
+    <hr>
+	  <h3>GetFrisch Global Leaderboard</h3>
+	  <p>Scores are automatically validated and submitted to the leaderboard!</p>
+
+	  <div id="leaderboard-container">
+	    <div class="loading">Loading leaderboard...</div>
+	  </div>
+
+    <hr>
+    <p>
+    Modified by <a href="https://github.com/JJJed">Josh Davis</a>. Created by <a href="https://github.com/Oran-G">Oran Goodman</a>. Inspired by <a href="https://mitchgu.github.io/GetMIT/">Get MIT by Mitchell Gu</a>. Based on <a href="http://gabrielecirulli.com" target="_blank">2048 by Gabriele Cirulli.</a> and <a href="https://itunes.apple.com/us/app/1024!/id823499224" target="_blank">1024 by Veewo Studio</a> and conceptually similar to <a href="http://asherv.com/threes/" target="_blank">Threes by Asher Vollmer.</a>
+    </p>
+  </div>
+
+  <!-- Socket.io for real-time leaderboard -->
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+
+  <!-- Original game scripts -->
+  <script src="js/animframe_polyfill.js"></script>
+  <script src="js/keyboard_input_manager.js"></script>
+  <script src="js/html_actuator.js"></script>
+  <script src="js/grid.js"></script>
+  <script src="js/tile.js"></script>
+  <script src="js/local_score_manager.js"></script>
+
+  <!-- New API client -->
+  <script src="js/api_client.js"></script>
+
+  <!-- Modified game manager -->
+  <script src="js/game_manager.js"></script>
+  <script src="js/application.js"></script>
+
+  <!-- Auth and Leaderboard handling -->
+  <script src="js/auth_handler.js"></script>
+  <script src="js/leaderboard_handler.js"></script>
+</body>
+</html>
