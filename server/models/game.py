@@ -11,8 +11,8 @@ class Game(db.Model):
     best_tile = db.Column(db.Integer, nullable=False)
     moves_count = db.Column(db.Integer, nullable=False)
     game_duration = db.Column(db.Integer, nullable=False)  # in seconds
-    move_history = db.Column(db.Text, nullable=False)  # JSON string of moves
-    final_board = db.Column(db.Text, nullable=False)  # JSON string of board state
+    move_history = db.Column(db.Text(16777215), nullable=False)  # JSON string of moves (MEDIUMTEXT)
+    final_board = db.Column(db.Text(16777215), nullable=False)  # JSON string of board state (MEDIUMTEXT)
     is_win = db.Column(db.Boolean, default=False)
     is_validated = db.Column(db.Boolean, default=False)
     is_flagged = db.Column(db.Boolean, default=False)
