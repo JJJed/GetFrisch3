@@ -67,12 +67,21 @@ GameManager.prototype.debugSetupWinScenario = function() {
   // Trigger the win condition
   this.won = true;
 
+  // Temporarily mark as submitted to prevent submission during setup
+  // This simulates that the win was already submitted
+  this.submitted = true;
+
   // Update the display
   this.actuate();
+
+  // Reset submitted flag immediately after actuate
+  // This simulates the state right after clicking "Keep Playing"
+  this.submitted = false;
 
   console.log('Win scenario set up!');
   console.log('Score:', this.score);
   console.log('Move history length:', this.moveHistory.length);
+  console.log('Won:', this.won, '| Submitted:', this.submitted);
   console.log('Now click "Keep Playing" and continue until you lose to test score submission');
 };
 
@@ -135,12 +144,19 @@ GameManager.prototype.debugSetupNearLossScenario = function() {
     });
   }.bind(this));
 
+  // Temporarily mark as submitted to prevent premature submission during setup
+  this.submitted = true;
+
   // Update the display
   this.actuate();
+
+  // Now reset submitted flag so the next game over will submit
+  this.submitted = false;
 
   console.log('Near-loss scenario set up!');
   console.log('You are in "Keep Playing" mode with only a few moves left');
   console.log('Score:', this.score);
+  console.log('Submitted flag:', this.submitted);
   console.log('Make 1-2 moves to trigger game over and test score submission');
 };
 
