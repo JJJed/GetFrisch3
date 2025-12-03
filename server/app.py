@@ -31,6 +31,8 @@ app.config['SQLALCHEMY_POOL_RECYCLE'] = 3600
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'jwt-secret-key-change-in-production')
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = int(os.getenv('JWT_ACCESS_TOKEN_EXPIRES', 3600))
+# Set max request size to 50MB to handle large move histories for high scores
+app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50 MB
 
 # Initialize extensions
 db.init_app(app)
@@ -100,6 +102,14 @@ def handle_leaderboard_request():
 @app.errorhandler(404)
 def not_found(error):
     return jsonify({'error': 'Not found'}), 404
+
+@app.errorhandler(413)
+def request_entity_too_large(error):
+    return jsonify({
+        'error': 'Request too large',
+        'message': 'The game data exceeds the maximum allowed size. This may happen with very long games.',
+        'max_size_mb': 50
+    }), 413
 
 @app.errorhandler(500)
 def internal_error(error):

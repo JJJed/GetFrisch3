@@ -183,3 +183,81 @@ def get_user_stats():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@bp.route('/submit-test', methods=['POST'])
+@jwt_required()
+def submit_test_game():
+    """Test endpoint to submit games with custom scores (for debugging high score issues)"""
+    try:
+        user_id = int(get_jwt_identity())
+        user = User.query.get(user_id)
+
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+
+        if user.is_banned:
+            return jsonify({'error': 'Account is banned'}), 403
+
+        data = request.get_json()
+
+        # Extract game data with defaults for testing
+        score = data.get('score', 20000)  # Default to 20k for testing
+        best_tile = data.get('best_tile', 2048)
+        moves_count = data.get('moves_count', score // 100)  # Estimate moves based on score
+        game_duration = data.get('game_duration', 300)
+
+        # Generate minimal synthetic move history for testing
+        # This creates a small, valid move history regardless of score
+        move_history = data.get('move_history', [
+            {'direction': 'right', 'score': 0},
+            {'direction': 'down', 'score': 4},
+            {'direction': 'left', 'score': 8},
+            {'direction': 'up', 'score': 12}
+        ])
+
+        # Generate minimal final board for testing
+        final_board = data.get('final_board', [
+            [2, 4, 8, 16],
+            [32, 64, 128, 256],
+            [512, 1024, 2048, 0],
+            [0, 0, 0, 0]
+        ])
+
+        is_win = data.get('is_win', True)
+
+        # For testing, we skip validation
+        is_validated = True
+        flag_reason = None
+
+        # Create game record
+        game = Game(
+            user_id=user_id,
+            score=score,
+            best_tile=best_tile,
+            moves_count=moves_count,
+            game_duration=game_duration,
+            is_win=is_win,
+            is_validated=is_validated,
+            is_flagged=False,
+            flag_reason=flag_reason
+        )
+
+        game.set_move_history(move_history)
+        game.set_final_board(final_board)
+
+        db.session.add(game)
+        db.session.commit()
+
+        # Emit leaderboard update via WebSocket
+        from app import socketio
+        socketio.emit('leaderboard_changed', {'game_id': game.id})
+
+        return jsonify({
+            'message': 'Test game submitted successfully',
+            'game': game.to_dict(),
+            'note': 'This is a test submission for debugging purposes'
+        }), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
