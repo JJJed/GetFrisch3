@@ -96,7 +96,9 @@ GameManager.prototype.actuate = function () {
   }
 
   // Check if game is over or won, and submit score
-  if ((this.over || this.won) && !this.submitted) {
+  // Only submit if: (won/over and not in keep-playing mode) OR (actually over while in keep-playing mode)
+  var shouldSubmit = (((this.over || this.won) && !this.keepPlaying) || (this.over && this.keepPlaying)) && !this.submitted;
+  if (shouldSubmit) {
     this.submitGameToServer();
   }
 
