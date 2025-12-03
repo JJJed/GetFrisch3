@@ -4,7 +4,6 @@ from models import db
 from models.user import User
 from models.game import Game
 from utils.game_validator import GameValidator
-
 import os
 
 bp = Blueprint('game', __name__)
