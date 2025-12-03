@@ -27,6 +27,7 @@ GameManager.prototype.restart = function () {
 // Keep playing after winning
 GameManager.prototype.keepPlaying = function () {
   this.keepPlaying = true;
+  this.submitted = false; // Reset submission flag to allow final score submission
   this.actuator.continue();
 };
 
