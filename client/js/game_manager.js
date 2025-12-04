@@ -53,6 +53,15 @@ GameManager.prototype.setup = function () {
   this.gameStartTime = Date.now();
   this.bestTileValue = 0;
   this.submitted = false;
+  this.milestonesReached = {}; // Track which tile milestones have been reached
+
+  // Track game start
+  if (typeof gtag !== 'undefined') {
+    gtag('event', 'game_start', {
+      'event_category': 'Gameplay',
+      'event_label': 'New Game Started'
+    });
+  }
 
   // Add the initial tiles
   this.addStartTiles();
@@ -244,6 +253,19 @@ GameManager.prototype.move = function (direction) {
           // Track best tile
           if (merged.value > self.bestTileValue) {
             self.bestTileValue = merged.value;
+          }
+
+          // Track milestone achievements
+          var milestones = [128, 256, 512, 1024, 2048, 4096, 8192];
+          if (milestones.indexOf(merged.value) !== -1 && !self.milestonesReached[merged.value]) {
+            self.milestonesReached[merged.value] = true;
+            if (typeof gtag !== 'undefined') {
+              gtag('event', 'tile_milestone', {
+                'event_category': 'Gameplay',
+                'event_label': 'Reached ' + merged.value + ' Tile',
+                'value': merged.value
+              });
+            }
           }
 
           // The mighty 2048 tile

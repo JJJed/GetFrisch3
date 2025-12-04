@@ -61,6 +61,14 @@ async function loginAnonymous() {
     const result = await apiClient.loginAnonymous(username);
     console.log('Anonymous login successful:', result);
 
+    // Track anonymous play start
+    if (typeof gtag !== 'undefined') {
+      gtag('event', 'anonymous_play_start', {
+        'event_category': 'Authentication',
+        'event_label': 'Anonymous User'
+      });
+    }
+
     closeAuthModal();
     updateUserInfo(result.user);
 
@@ -83,6 +91,15 @@ async function login() {
   try {
     const result = await apiClient.login(username, password);
     console.log('Login successful:', result);
+
+    // Track login
+    if (typeof gtag !== 'undefined') {
+      gtag('event', 'login', {
+        'event_category': 'Authentication',
+        'event_label': 'Username/Password Login',
+        'method': 'password'
+      });
+    }
 
     closeAuthModal();
     updateUserInfo(result.user);
@@ -113,6 +130,15 @@ async function register() {
     const result = await apiClient.register(username, password, email || null);
     console.log('Registration successful:', result);
 
+    // Track registration
+    if (typeof gtag !== 'undefined') {
+      gtag('event', 'sign_up', {
+        'event_category': 'Authentication',
+        'event_label': 'New Account Registration',
+        'method': 'password'
+      });
+    }
+
     closeAuthModal();
     updateUserInfo(result.user);
 
@@ -124,6 +150,14 @@ async function register() {
 }
 
 function logout() {
+  // Track logout
+  if (typeof gtag !== 'undefined') {
+    gtag('event', 'logout', {
+      'event_category': 'Authentication',
+      'event_label': 'User Logout'
+    });
+  }
+
   apiClient.clearAuth();
   updateUserInfo(null);
 
@@ -153,6 +187,15 @@ async function handleCredentialResponse(response) {
     }
 
     // Existing user - complete login
+    // Track Google login
+    if (typeof gtag !== 'undefined') {
+      gtag('event', 'login', {
+        'event_category': 'Authentication',
+        'event_label': 'Google Sign-In',
+        'method': 'google'
+      });
+    }
+
     closeAuthModal();
     updateUserInfo(result.user);
 
@@ -225,6 +268,15 @@ async function completeGoogleSignup() {
     // Complete registration
     const result = await apiClient.completeGoogleSignup(username, pendingGoogleData);
     console.log('Google registration completed:', result);
+
+    // Track Google sign-up
+    if (typeof gtag !== 'undefined') {
+      gtag('event', 'sign_up', {
+        'event_category': 'Authentication',
+        'event_label': 'Google Sign-Up',
+        'method': 'google'
+      });
+    }
 
     closeUsernameModal();
     updateUserInfo(result.user);
@@ -414,6 +466,15 @@ async function saveSchool() {
   try {
     const result = await apiClient.updateSchool(school);
     console.log('School updated:', result);
+
+    // Track school selection
+    if (typeof gtag !== 'undefined') {
+      gtag('event', 'school_selected', {
+        'event_category': 'User Profile',
+        'event_label': school || 'None',
+        'value': school ? 1 : 0
+      });
+    }
 
     closeSchoolModal();
     updateUserInfo(result.user);

@@ -47,6 +47,15 @@ function initializeSocket() {
 
   socket.on('connect', () => {
     console.log('Connected to server');
+
+    // Track WebSocket connection
+    if (typeof gtag !== 'undefined') {
+      gtag('event', 'websocket_connected', {
+        'event_category': 'Leaderboard',
+        'event_label': 'Real-time Connection Established'
+      });
+    }
+
     socket.emit('request_leaderboard');
   });
 
@@ -60,11 +69,30 @@ function initializeSocket() {
 
   socket.on('leaderboard_update', (data) => {
     console.log('Leaderboard updated');
+
+    // Track leaderboard view
+    if (typeof gtag !== 'undefined') {
+      gtag('event', 'view_leaderboard', {
+        'event_category': 'Leaderboard',
+        'event_label': 'Leaderboard Viewed',
+        'value': data.leaderboard ? data.leaderboard.length : 0
+      });
+    }
+
     renderLeaderboard(data.leaderboard);
   });
 
   socket.on('leaderboard_changed', (data) => {
     console.log('Leaderboard changed, fetching new data...');
+
+    // Track new score notification
+    if (typeof gtag !== 'undefined') {
+      gtag('event', 'leaderboard_changed', {
+        'event_category': 'Leaderboard',
+        'event_label': 'New Score Submitted'
+      });
+    }
+
     // Refresh leaderboard when a new score is submitted
     socket.emit('request_leaderboard');
   });
@@ -149,8 +177,25 @@ async function submitGameScore(gameData) {
 
     if (result.validated) {
       console.log('Game validated and submitted successfully');
+
+      // Track successful score submission
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'score_submitted', {
+          'event_category': 'Gameplay',
+          'event_label': 'Score Submitted Successfully',
+          'value': gameData.score
+        });
+      }
     } else {
       console.warn('Game was flagged:', result.validation_error);
+
+      // Track flagged game
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'game_flagged', {
+          'event_category': 'Gameplay',
+          'event_label': result.validation_error || 'Unknown Reason'
+        });
+      }
     }
 
     // Leaderboard will update automatically via WebSocket
