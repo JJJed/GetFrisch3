@@ -15,7 +15,7 @@ jobs:
         with:
           host: ${{ secrets.VPS_IP }}
           username: root
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          password: ${{ secrets.SSH_PASSWORD }}
           script: |
             cd /var/www/getfrisch3
             git pull
