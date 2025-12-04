@@ -401,8 +401,8 @@ async function saveSchool() {
   errorDiv.textContent = '';
 
   // Validate school name
-  if (school && school.length > 100) {
-    errorDiv.textContent = 'School name must be less than 100 characters';
+  if (school && school.length > 15) {
+    errorDiv.textContent = 'School name must be 15 characters or less';
     errorDiv.style.display = 'block';
     return;
   }

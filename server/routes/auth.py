@@ -360,8 +360,8 @@ def update_school():
             user.school = None
         else:
             # Validate school name length
-            if len(school) > 100:
-                return jsonify({'error': 'School name must be less than 100 characters'}), 400
+            if len(school) > 15:
+                return jsonify({'error': 'School name must be 15 characters or less'}), 400
             user.school = school
 
         db.session.commit()

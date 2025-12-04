@@ -93,7 +93,17 @@ def handle_leaderboard_request():
             .limit(limit)\
             .all()
 
-        leaderboard_data = [game.to_dict() for game in top_games]
+        leaderboard_data = []
+        rank = 1
+        for game in top_games:
+            game_dict = game.to_dict()
+            game_dict['rank'] = rank
+            # Add school from user if available
+            if game.player:
+                game_dict['school'] = game.player.school
+            leaderboard_data.append(game_dict)
+            rank += 1
+
         emit('leaderboard_update', {'leaderboard': leaderboard_data})
     except Exception as e:
         emit('error', {'message': str(e)})

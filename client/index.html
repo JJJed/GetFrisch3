@@ -492,7 +492,7 @@
       <p style="color: #666; margin-bottom: 20px;">This will be displayed on the leaderboard next to your name.</p>
 
       <div class="auth-form">
-        <input type="text" id="schoolInput" placeholder="Enter your school name" maxlength="100" onkeypress="if(event.key==='Enter') saveSchool()">
+        <input type="text" id="schoolInput" placeholder="Enter your school name (max 15 chars)" maxlength="15" onkeypress="if(event.key==='Enter') saveSchool()">
         <button onclick="saveSchool()">Save</button>
         <button onclick="clearSchool()" style="background-color: #8A8B8C;">Clear School</button>
         <div id="schoolError" class="error-message"></div>

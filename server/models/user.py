@@ -13,7 +13,7 @@ class User(db.Model):
     is_verified = db.Column(db.Boolean, default=False)
     is_banned = db.Column(db.Boolean, default=False)
     high_score = db.Column(db.Integer, default=0, nullable=False, index=True)
-    school = db.Column(db.String(100), nullable=True, index=True)
+    school = db.Column(db.String(15), nullable=True, index=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     last_login = db.Column(db.DateTime, default=datetime.utcnow)
 
