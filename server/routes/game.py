@@ -71,6 +71,11 @@ def submit_game():
         game.set_final_board(final_board)
 
         db.session.add(game)
+
+        # Update user's high score if this game beats it
+        if score > user.high_score:
+            user.high_score = score
+
         db.session.commit()
 
         # Emit leaderboard update via WebSocket
@@ -162,6 +167,7 @@ def get_user_stats():
         total_games = Game.query.filter_by(user_id=user_id).count()
         total_wins = Game.query.filter_by(user_id=user_id, is_win=True).count()
 
+        # Get best tile from best game
         best_game = Game.query.filter_by(user_id=user_id)\
             .order_by(Game.score.desc())\
             .first()
@@ -174,7 +180,7 @@ def get_user_stats():
             'total_games': total_games,
             'total_wins': total_wins,
             'win_rate': (total_wins / total_games * 100) if total_games > 0 else 0,
-            'best_score': best_game.score if best_game else 0,
+            'best_score': user.high_score,  # Use high_score from user model
             'best_tile': best_game.best_tile if best_game else 0,
             'average_score': round(avg_score, 2)
         }
@@ -246,6 +252,11 @@ def submit_test_game():
         game.set_final_board(final_board)
 
         db.session.add(game)
+
+        # Update user's high score if this game beats it
+        if score > user.high_score:
+            user.high_score = score
+
         db.session.commit()
 
         # Emit leaderboard update via WebSocket

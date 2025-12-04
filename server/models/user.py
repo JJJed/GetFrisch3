@@ -12,6 +12,7 @@ class User(db.Model):
     is_anonymous = db.Column(db.Boolean, default=True)
     is_verified = db.Column(db.Boolean, default=False)
     is_banned = db.Column(db.Boolean, default=False)
+    high_score = db.Column(db.Integer, default=0, nullable=False, index=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     last_login = db.Column(db.DateTime, default=datetime.utcnow)
 
