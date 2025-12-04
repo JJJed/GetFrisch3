@@ -249,10 +249,14 @@ function updateUserInfo(user) {
     const anonymousBadge = user.is_anonymous ? '<span style="color: #999;"> (Guest)</span>' : '';
 
     userInfoDiv.innerHTML = `
-      <div style="display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px;">
-        <span class="username">${user.username}</span>${verifiedBadge}${anonymousBadge}
-        <button onclick="showSchoolModal()">Set School</button>
-        <button onclick="logout()">Logout</button>
+      <div class="user-info-content">
+        <div class="user-name-section">
+          <span class="username">${user.username}</span>${verifiedBadge}${anonymousBadge}
+        </div>
+        <div class="user-buttons-section">
+          <button onclick="showSchoolModal()">Set School</button>
+          <button onclick="logout()">Logout</button>
+        </div>
       </div>
     `;
     userInfoDiv.style.display = 'block';
