@@ -64,10 +64,8 @@ async function loginAnonymous() {
     closeAuthModal();
     updateUserInfo(result.user);
 
-    // Start the game if not already started
-    if (typeof gameManager !== 'undefined') {
-      gameManager.restart();
-    }
+    // Reinitialize game with account-based score manager
+    initializeGame();
   } catch (error) {
     showAuthError(error.message);
   }
@@ -89,10 +87,8 @@ async function login() {
     closeAuthModal();
     updateUserInfo(result.user);
 
-    // Start the game if not already started
-    if (typeof gameManager !== 'undefined') {
-      gameManager.restart();
-    }
+    // Reinitialize game with account-based score manager
+    initializeGame();
   } catch (error) {
     showAuthError(error.message);
   }
@@ -120,10 +116,8 @@ async function register() {
     closeAuthModal();
     updateUserInfo(result.user);
 
-    // Start the game if not already started
-    if (typeof gameManager !== 'undefined') {
-      gameManager.restart();
-    }
+    // Reinitialize game with account-based score manager
+    initializeGame();
   } catch (error) {
     showAuthError(error.message);
   }
@@ -133,10 +127,8 @@ function logout() {
   apiClient.clearAuth();
   updateUserInfo(null);
 
-  // Reset the game
-  if (typeof gameManager !== 'undefined') {
-    gameManager.restart();
-  }
+  // Reinitialize game with local score manager
+  initializeGame();
 
   showAuthModal();
 }
@@ -164,10 +156,8 @@ async function handleCredentialResponse(response) {
     closeAuthModal();
     updateUserInfo(result.user);
 
-    // Start the game if not already started
-    if (typeof gameManager !== 'undefined') {
-      gameManager.restart();
-    }
+    // Reinitialize game with account-based score manager
+    initializeGame();
   } catch (error) {
     console.error('Google authentication failed:', error);
     showAuthError(error.message || 'Google authentication failed. Please try again.');
@@ -239,10 +229,8 @@ async function completeGoogleSignup() {
     closeUsernameModal();
     updateUserInfo(result.user);
 
-    // Start the game if not already started
-    if (typeof gameManager !== 'undefined') {
-      gameManager.restart();
-    }
+    // Reinitialize game with account-based score manager
+    initializeGame();
   } catch (error) {
     console.error('Username selection failed:', error);
     errorDiv.textContent = error.message || 'Failed to complete registration. Please try again.';
