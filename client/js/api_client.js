@@ -215,6 +215,22 @@ class APIClient {
     return data;
   }
 
+  /**
+   * Update user's school affiliation
+   */
+  async updateSchool(school) {
+    const data = await this.request('/auth/update-school', {
+      method: 'POST',
+      body: JSON.stringify({ school })
+    });
+
+    if (data.user) {
+      this.setUser(data.user);
+    }
+
+    return data;
+  }
+
   // ===== GAME ENDPOINTS =====
 
   /**

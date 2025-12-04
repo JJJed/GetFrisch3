@@ -99,6 +99,7 @@ function renderLeaderboard(leaderboard) {
   html += '<thead><tr>';
   html += '<th>Rank</th>';
   html += '<th>Player</th>';
+  html += '<th>School</th>';
   html += '<th>Score</th>';
   html += '<th>Best Tile</th>';
   html += '<th>Date</th>';
@@ -117,9 +118,13 @@ function renderLeaderboard(leaderboard) {
       dateStr = date.toLocaleDateString();
     }
 
+    // Format school or show '-' if not set
+    const schoolDisplay = game.school || '-';
+
     html += '<tr>';
     html += `<td class="rank">#${rank}</td>`;
     html += `<td><span class="player-name">${game.username}${verifiedBadge}${winBadge}</span></td>`;
+    html += `<td>${schoolDisplay}</td>`;
     html += `<td><strong>${game.score.toLocaleString()}</strong></td>`;
     html += `<td class="best-tile">${getTileSchoolDisplay(game.best_tile)}</td>`;
     html += `<td>${dateStr}</td>`;

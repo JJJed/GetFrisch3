@@ -45,6 +45,9 @@ def get_leaderboard():
         for game in top_games:
             game_dict = game.to_dict()
             game_dict['rank'] = rank
+            # Add school from user if available
+            if game.player:
+                game_dict['school'] = game.player.school
             leaderboard_data.append(game_dict)
             rank += 1
 

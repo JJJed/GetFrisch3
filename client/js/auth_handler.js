@@ -251,6 +251,7 @@ function updateUserInfo(user) {
     userInfoDiv.innerHTML = `
       <div style="display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px;">
         <span class="username">${user.username}</span>${verifiedBadge}${anonymousBadge}
+        <button onclick="showSchoolModal()">Set School</button>
         <button onclick="logout()">Logout</button>
       </div>
     `;
@@ -359,5 +360,83 @@ window.onclick = function(event) {
     if (apiClient.isAuthenticated()) {
       closeAuthModal();
     }
+  }
+
+  const schoolModal = document.getElementById('schoolModal');
+  if (event.target == schoolModal) {
+    closeSchoolModal();
+  }
+}
+
+// School Modal Functions
+function showSchoolModal() {
+  const modal = document.getElementById('schoolModal');
+  const input = document.getElementById('schoolInput');
+  const errorDiv = document.getElementById('schoolError');
+
+  // Pre-fill with current school if available
+  const currentUser = apiClient.getStoredUser();
+  input.value = currentUser && currentUser.school ? currentUser.school : '';
+
+  // Clear previous errors
+  errorDiv.textContent = '';
+  errorDiv.style.display = 'none';
+
+  modal.style.display = 'block';
+  input.focus();
+}
+
+function closeSchoolModal() {
+  const modal = document.getElementById('schoolModal');
+  modal.style.display = 'none';
+}
+
+async function saveSchool() {
+  const input = document.getElementById('schoolInput');
+  const errorDiv = document.getElementById('schoolError');
+  const school = input.value.trim();
+
+  // Clear previous errors
+  errorDiv.style.display = 'none';
+  errorDiv.textContent = '';
+
+  // Validate school name
+  if (school && school.length > 100) {
+    errorDiv.textContent = 'School name must be less than 100 characters';
+    errorDiv.style.display = 'block';
+    return;
+  }
+
+  try {
+    const result = await apiClient.updateSchool(school);
+    console.log('School updated:', result);
+
+    closeSchoolModal();
+    updateUserInfo(result.user);
+
+    // Show success message
+    alert('School updated successfully!');
+  } catch (error) {
+    console.error('Failed to update school:', error);
+    errorDiv.textContent = error.message || 'Failed to update school. Please try again.';
+    errorDiv.style.display = 'block';
+  }
+}
+
+async function clearSchool() {
+  try {
+    const result = await apiClient.updateSchool('');
+    console.log('School cleared:', result);
+
+    closeSchoolModal();
+    updateUserInfo(result.user);
+
+    // Show success message
+    alert('School cleared successfully!');
+  } catch (error) {
+    console.error('Failed to clear school:', error);
+    const errorDiv = document.getElementById('schoolError');
+    errorDiv.textContent = error.message || 'Failed to clear school. Please try again.';
+    errorDiv.style.display = 'block';
   }
 }

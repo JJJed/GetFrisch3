@@ -340,3 +340,37 @@ def google_complete_registration():
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
+
+@bp.route('/update-school', methods=['POST'])
+@jwt_required()
+def update_school():
+    """Update user's school affiliation"""
+    try:
+        user_id = int(get_jwt_identity())
+        user = User.query.get(user_id)
+
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+
+        data = request.get_json()
+        school = data.get('school', '').strip()
+
+        # Allow null/empty to clear school
+        if not school:
+            user.school = None
+        else:
+            # Validate school name length
+            if len(school) > 100:
+                return jsonify({'error': 'School name must be less than 100 characters'}), 400
+            user.school = school
+
+        db.session.commit()
+
+        return jsonify({
+            'message': 'School updated successfully',
+            'user': user.to_dict(include_email=True)
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500

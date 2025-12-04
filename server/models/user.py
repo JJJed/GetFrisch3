@@ -13,6 +13,7 @@ class User(db.Model):
     is_verified = db.Column(db.Boolean, default=False)
     is_banned = db.Column(db.Boolean, default=False)
     high_score = db.Column(db.Integer, default=0, nullable=False, index=True)
+    school = db.Column(db.String(100), nullable=True, index=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     last_login = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -42,6 +43,7 @@ class User(db.Model):
             'username': self.username,
             'is_anonymous': self.is_anonymous,
             'is_verified': self.is_verified,
+            'school': self.school,
             'created_at': self.created_at.isoformat() if self.created_at else None
         }
         if include_email and self.email:
