@@ -535,9 +535,6 @@
     <div id="authButtons" class="auth-buttons">
       <button onclick="showAuthModal()">Login / Register</button>
     </div>
-    <p style="margin-top: 15px; font-size: 0.9em; color: #888; text-align: center;">
-      <a href="https://docs.google.com/forms/d/e/1FAIpQLSeSS8AC_Z0FrtSu4qS28rapr0WfIA7chX62vTNu-aUeAw3KYw/viewform?usp=dialog" target="_blank" rel="noopener noreferrer" style="color: #A31F34; text-decoration: none;">Vote to replace a school</a>
-    </p>
 
     <div class="heading">
       <h1 class="title">GetFrisch</h1>
@@ -596,6 +593,9 @@
     <hr>
 	  <h2 id="leaderboard-title">GetFrisch Global Leaderboard</h2>
 	  <p>Scores are automatically validated and submitted to the leaderboard!</p>
+	  <div style="text-align: center; margin: 20px 0;">
+	    <button onclick="window.open('https://docs.google.com/forms/d/e/1FAIpQLSeSS8AC_Z0FrtSu4qS28rapr0WfIA7chX62vTNu-aUeAw3KYw/viewform?usp=dialog', '_blank')" style="padding: 12px 24px; background-color: #A31F34; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: 600; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#8A1829'" onmouseout="this.style.backgroundColor='#A31F34'">Vote to Replace a School</button>
+	  </div>
 	  <div id="leaderboard-container">
 	    <div class="loading">Loading leaderboard...</div>
 	  </div>
