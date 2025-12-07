@@ -26,6 +26,10 @@ h1.title {
   display: block;
   float: left; }
 
+#leaderboard-title {
+    color: #A31F34;
+}
+
 @-webkit-keyframes move-up {
   0% {
     top: 25px;
