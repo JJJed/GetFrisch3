@@ -50,6 +50,12 @@ class APIClient {
 
       if (!response.ok) {
         console.error(`API Error ${response.status}:`, data);
+        console.error(`URL: ${url}`);
+        console.error(`Method: ${config.method || 'GET'}`);
+        if (config.body) {
+          const bodyPreview = config.body.substring(0, 500);
+          console.error(`Request body (first 500 chars): ${bodyPreview}`);
+        }
         const error = new Error(data.error || data.message || `HTTP ${response.status}`);
         error.status = response.status;
         error.data = data;

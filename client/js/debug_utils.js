@@ -265,8 +265,137 @@ window.checkGameState = function() {
   }
 };
 
+// Test high score submission with lots of moves
+GameManager.prototype.debugTestHighScoreSubmission = function(targetScore, targetMoves) {
+  console.log('=== HIGH SCORE SUBMISSION TEST ===');
+  console.log(`Setting up game with score: ${targetScore}, moves: ${targetMoves}`);
+
+  // Clear the grid and set up game over state
+  this.grid = new Grid(this.size);
+  this.score = targetScore || 44000;
+  this.over = true;
+  this.won = true;
+  this.keepPlaying = false;
+  this.submitted = false;
+
+  // Reset tracking
+  this.gameStartTime = Date.now() - (600 * 1000); // 10 minutes ago
+  this.bestTileValue = 2048;
+
+  // Generate synthetic move history with the requested number of moves
+  var numMoves = targetMoves || 1000;
+  this.moveHistory = [];
+
+  console.log(`Generating ${numMoves} moves...`);
+
+  // Add initial tiles
+  this.moveHistory.push({
+    tile: { x: 0, y: 0, value: 2 },
+    direction: null
+  });
+  this.moveHistory.push({
+    tile: { x: 1, y: 1, value: 2 },
+    direction: null
+  });
+
+  // Generate moves with a realistic pattern
+  var directions = [0, 1, 2, 3]; // up, right, down, left
+  for (var i = 0; i < numMoves - 2; i++) {
+    var direction = directions[i % 4];
+    this.moveHistory.push({
+      direction: direction,
+      tile: { x: Math.floor(Math.random() * 4), y: Math.floor(Math.random() * 4), value: 2 }
+    });
+  }
+
+  // Create a final board state
+  var finalTiles = [
+    { x: 0, y: 0, value: 2048 },
+    { x: 1, y: 0, value: 1024 },
+    { x: 2, y: 0, value: 512 },
+    { x: 3, y: 0, value: 256 },
+    { x: 0, y: 1, value: 128 },
+    { x: 1, y: 1, value: 64 },
+    { x: 2, y: 1, value: 32 },
+    { x: 3, y: 1, value: 16 },
+    { x: 0, y: 2, value: 8 },
+    { x: 1, y: 2, value: 4 },
+    { x: 2, y: 2, value: 2 },
+    { x: 3, y: 2, value: 128 },
+    { x: 0, y: 3, value: 64 },
+    { x: 1, y: 3, value: 32 },
+    { x: 2, y: 3, value: 16 },
+    { x: 3, y: 3, value: 8 }
+  ];
+
+  finalTiles.forEach(function(tileData) {
+    var tile = new Tile({x: tileData.x, y: tileData.y}, tileData.value);
+    this.grid.insertTile(tile);
+  }.bind(this));
+
+  // Update the display
+  this.actuate();
+
+  console.log('Test game state created:');
+  console.log('  Score:', this.score);
+  console.log('  Best Tile:', this.bestTileValue);
+  console.log('  Move History Length:', this.moveHistory.length);
+  console.log('  Game Duration:', Math.floor((Date.now() - this.gameStartTime) / 1000), 'seconds');
+  console.log('  Is Authenticated:', typeof apiClient !== 'undefined' && apiClient.isAuthenticated());
+
+  // Calculate estimated payload size
+  var estimatedSize = JSON.stringify(this.moveHistory).length;
+  console.log('  Estimated move_history size:', (estimatedSize / 1024).toFixed(2), 'KB');
+
+  if (typeof apiClient === 'undefined' || !apiClient.isAuthenticated()) {
+    console.error('ERROR: You must be logged in to submit scores!');
+    console.log('Please log in first, then run this test again.');
+    return;
+  }
+
+  console.log('\nReady to submit! Run testSubmitHighScore() to submit this game.');
+};
+
+// Submit the test high score
+window.testSubmitHighScore = async function() {
+  if (typeof gameManager === 'undefined') {
+    console.error('Game manager not found. Make sure the game is loaded.');
+    return;
+  }
+
+  if (typeof apiClient === 'undefined' || !apiClient.isAuthenticated()) {
+    console.error('You must be logged in to submit scores!');
+    return;
+  }
+
+  console.log('=== SUBMITTING HIGH SCORE TEST ===');
+  console.log('Triggering submission...');
+
+  try {
+    await gameManager.submitGameToServer();
+    console.log('Submission complete! Check the logs and database.');
+  } catch (error) {
+    console.error('Submission failed:', error);
+  }
+};
+
+window.testHighScoreSubmission = function(score, moves) {
+  if (typeof gameManager !== 'undefined') {
+    gameManager.debugTestHighScoreSubmission(score, moves);
+  } else {
+    console.error('Game manager not found. Make sure the game is loaded.');
+  }
+};
+
 console.log('Debug utilities loaded! Available commands:');
 console.log('  testWinScenario() - Set up a board with 2048 tile and trigger win');
 console.log('  testNearWinScenario() - Set up a board 2-3 moves away from winning');
 console.log('  testNearLossScenario() - Set up a board in "Keep Playing" mode, ready to lose');
 console.log('  checkGameState() - Display current game state information');
+console.log('');
+console.log('HIGH SCORE TESTING:');
+console.log('  testHighScoreSubmission(score, moves) - Create a test game with custom score and move count');
+console.log('    Examples:');
+console.log('      testHighScoreSubmission(44000, 1000) - 44k score with 1000 moves');
+console.log('      testHighScoreSubmission(56000, 2000) - 56k score with 2000 moves');
+console.log('  testSubmitHighScore() - Submit the test game after creating it');

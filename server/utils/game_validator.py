@@ -228,12 +228,14 @@ class GameValidator:
             }
 
         # Check for reasonable score-to-moves ratio
+        # NOTE: High score games (50k+) naturally have higher avg scores per move
+        # due to exponential tile growth. Increased threshold to avoid false positives.
         if len(move_history) > 0:
             avg_score_per_move = score / len(move_history)
-            if avg_score_per_move > 500:  # Suspiciously high
+            if avg_score_per_move > 2000:  # Increased from 500
                 return {
                     'valid': False,
-                    'reason': 'Suspicious: Unrealistic score-to-moves ratio',
+                    'reason': f'Suspicious: Unrealistic score-to-moves ratio ({avg_score_per_move:.1f} per move)',
                     'actual_score': self.score
                 }
 

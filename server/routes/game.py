@@ -5,6 +5,18 @@ from models.user import User
 from models.game import Game
 from utils.game_validator import GameValidator
 import os
+import logging
+import traceback
+
+# Set up logging for game submissions
+log_dir = '/var/www/getfrisch3/logs'
+os.makedirs(log_dir, exist_ok=True)
+logging.basicConfig(
+    filename=os.path.join(log_dir, 'game_submission.log'),
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 bp = Blueprint('game', __name__)
 
@@ -17,12 +29,15 @@ def submit_game():
         user = User.query.get(user_id)
 
         if not user:
+            logger.warning(f'User not found: {user_id}')
             return jsonify({'error': 'User not found'}), 404
 
         if user.is_banned:
+            logger.warning(f'Banned user attempted submission: {user.username}')
             return jsonify({'error': 'Account is banned'}), 403
 
         data = request.get_json()
+        logger.info(f'=== GAME SUBMISSION START === User: {user.username} (ID: {user_id})')
 
         # Extract game data
         score = data.get('score', 0)
@@ -33,11 +48,15 @@ def submit_game():
         final_board = data.get('final_board', [])
         is_win = data.get('is_win', False)
 
+        logger.info(f'Score: {score}, Best Tile: {best_tile}, Moves: {moves_count}, Duration: {game_duration}s, Move History Length: {len(move_history)}')
+
         # Basic validation
         if score < 0 or best_tile < 0 or moves_count < 0 or game_duration < 0:
+            logger.error(f'Invalid data: negative values')
             return jsonify({'error': 'Invalid game data: negative values'}), 400
 
         if not move_history:
+            logger.error(f'Invalid data: no move history')
             return jsonify({'error': 'Move history required for validation'}), 400
 
         # Validate game using server-side validator
@@ -48,13 +67,23 @@ def submit_game():
         flag_reason = None
 
         if validation_enabled:
-            validation_result = validator.validate_game(move_history, score, final_board)
+            try:
+                logger.info(f'Starting validation...')
+                validation_result = validator.validate_game(move_history, score, final_board)
+                logger.info(f'Validation result: {validation_result}')
 
-            if not validation_result['valid']:
+                if not validation_result['valid']:
+                    is_validated = False
+                    flag_reason = validation_result.get('reason', 'Validation failed')
+                    logger.warning(f'Game flagged: {flag_reason}')
+            except Exception as validation_error:
+                logger.error(f'Validation exception: {type(validation_error).__name__}: {str(validation_error)}')
+                logger.error(traceback.format_exc())
                 is_validated = False
-                flag_reason = validation_result.get('reason', 'Validation failed')
+                flag_reason = f'Validation error: {str(validation_error)}'
 
         # Create game record
+        logger.info(f'Creating game record (validated={is_validated}, flagged={not is_validated})')
         game = Game(
             user_id=user_id,
             score=score,
@@ -67,16 +96,21 @@ def submit_game():
             flag_reason=flag_reason
         )
 
+        logger.info(f'Setting move history and final board...')
         game.set_move_history(move_history)
         game.set_final_board(final_board)
 
+        logger.info(f'Adding game to session...')
         db.session.add(game)
 
         # Update user's high score if this game beats it
         if score > user.high_score:
+            logger.info(f'Updating user high score: {user.high_score} -> {score}')
             user.high_score = score
 
+        logger.info(f'Committing to database...')
         db.session.commit()
+        logger.info(f'SUCCESS! Game ID {game.id} saved. Validated: {is_validated}')
 
         # Emit leaderboard update via WebSocket
         from app import socketio
@@ -91,11 +125,14 @@ def submit_game():
         if not is_validated:
             response_data['validation_error'] = flag_reason
 
+        logger.info(f'=== GAME SUBMISSION COMPLETE ===')
         return jsonify(response_data), 201
 
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+        logger.error(f'FATAL ERROR in submit_game: {type(e).__name__}: {str(e)}')
+        logger.error(traceback.format_exc())
+        return jsonify({'error': str(e), 'type': type(e).__name__}), 500
 
 @bp.route('/history', methods=['GET'])
 @jwt_required()
