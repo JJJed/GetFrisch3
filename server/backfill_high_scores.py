@@ -28,9 +28,12 @@ def backfill_high_scores():
         print(f"Found {total_users} users to process")
 
         for i, user in enumerate(users, 1):
-            # Get user's highest score from games
-            best_game = Game.query.filter_by(user_id=user.id)\
-                .order_by(Game.score.desc())\
+            # Get user's highest score from validated, non-flagged games only
+            best_game = Game.query.filter_by(
+                user_id=user.id,
+                is_validated=True,
+                is_flagged=False
+            ).order_by(Game.score.desc())\
                 .first()
 
             if best_game:

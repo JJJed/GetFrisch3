@@ -110,10 +110,12 @@ def submit_game():
         logger.info(f'Adding game to session...')
         db.session.add(game)
 
-        # Update user's high score if this game beats it
-        if score > user.high_score:
-            logger.info(f'Updating user high score: {user.high_score} -> {score}')
+        # Update user's high score if this game beats it AND is validated
+        if score > user.high_score and is_validated:
+            logger.info(f'Updating user high score: {user.high_score} -> {score} (validated)')
             user.high_score = score
+        elif score > user.high_score and not is_validated:
+            logger.warning(f'High score NOT updated: {score} is unvalidated (reason: {flag_reason})')
 
         logger.info(f'Committing to database...')
         db.session.commit()
@@ -297,8 +299,8 @@ def submit_test_game():
 
         db.session.add(game)
 
-        # Update user's high score if this game beats it
-        if score > user.high_score:
+        # Update user's high score if this game beats it AND is validated
+        if score > user.high_score and is_validated:
             user.high_score = score
 
         db.session.commit()
