@@ -9,14 +9,21 @@ import logging
 import traceback
 
 # Set up logging for game submissions
-log_dir = '/var/www/getfrisch3/logs'
-os.makedirs(log_dir, exist_ok=True)
-logging.basicConfig(
-    filename=os.path.join(log_dir, 'game_submission.log'),
-    level=logging.DEBUG,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
+try:
+    log_dir = '/var/www/getfrisch3/logs'
+    os.makedirs(log_dir, exist_ok=True)
+
+    # Configure file handler
+    file_handler = logging.FileHandler(os.path.join(log_dir, 'game_submission.log'))
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+    logger.addHandler(file_handler)
+    logger.setLevel(logging.DEBUG)
+except Exception as e:
+    # If logging setup fails, just use basic console logging
+    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    logger.warning(f'Could not set up file logging: {e}. Using console logging instead.')
 
 bp = Blueprint('game', __name__)
 
