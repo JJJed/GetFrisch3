@@ -42,11 +42,13 @@ socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
 
 # Import routes after app initialization
 from routes import auth, game, leaderboard
+from routes.logs import logs_bp
 
 # Register blueprints
 app.register_blueprint(auth.bp, url_prefix='/api/auth')
 app.register_blueprint(game.bp, url_prefix='/api/game')
 app.register_blueprint(leaderboard.bp, url_prefix='/api/leaderboard')
+app.register_blueprint(logs_bp)
 
 # Serve static files (client)
 @app.route('/')

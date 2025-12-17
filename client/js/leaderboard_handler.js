@@ -170,6 +170,18 @@ async function submitGameScore(gameData) {
     return false;
   }
 
+  // Remote log the submission attempt with score details
+  if (typeof remoteLogger !== 'undefined') {
+    await remoteLogger.info('Game submission attempt', {
+      score: gameData.score,
+      moves_count: gameData.moves_count,
+      best_tile: gameData.best_tile,
+      game_duration: gameData.game_duration,
+      move_history_length: gameData.move_history ? gameData.move_history.length : 0,
+      avg_score_per_move: gameData.moves_count > 0 ? (gameData.score / gameData.moves_count).toFixed(2) : 0
+    });
+  }
+
   try {
     console.log('Submitting game:', gameData);
     console.log('Game data JSON:', JSON.stringify(gameData, null, 2));
@@ -177,6 +189,14 @@ async function submitGameScore(gameData) {
 
     if (result.validated) {
       console.log('Game validated and submitted successfully');
+
+      // Remote log success
+      if (typeof remoteLogger !== 'undefined') {
+        await remoteLogger.info('Game submission successful', {
+          score: gameData.score,
+          validated: true
+        });
+      }
 
       // Track successful score submission
       if (typeof gtag !== 'undefined') {
@@ -188,6 +208,16 @@ async function submitGameScore(gameData) {
       }
     } else {
       console.warn('Game was flagged:', result.validation_error);
+
+      // Remote log flagged game with details
+      if (typeof remoteLogger !== 'undefined') {
+        await remoteLogger.warn('Game was flagged by server', {
+          score: gameData.score,
+          validation_error: result.validation_error,
+          moves_count: gameData.moves_count,
+          avg_score_per_move: gameData.moves_count > 0 ? (gameData.score / gameData.moves_count).toFixed(2) : 0
+        });
+      }
 
       // Track flagged game
       if (typeof gtag !== 'undefined') {
@@ -203,6 +233,19 @@ async function submitGameScore(gameData) {
   } catch (error) {
     console.error('Failed to submit game:', error);
     console.error('Error details:', error.message);
+
+    // Remote log the error with full details
+    if (typeof remoteLogger !== 'undefined') {
+      await remoteLogger.error('Game submission failed', {
+        score: gameData.score,
+        moves_count: gameData.moves_count,
+        error_message: error.message,
+        error_stack: error.stack,
+        response_status: error.response ? error.response.status : null,
+        response_data: error.response ? error.response.data : null
+      });
+    }
+
     if (error.response) {
       console.error('Response status:', error.response.status);
       console.error('Response data:', error.response.data);
