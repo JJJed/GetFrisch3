@@ -13,7 +13,7 @@ function GameManager(size, InputManager, Actuator, ScoreManager) {
 
   this.inputManager.on("move", this.move.bind(this));
   this.inputManager.on("restart", this.restart.bind(this));
-  this.inputManager.on("keepPlaying", this.keepPlaying.bind(this));
+  this.inputManager.on("keepPlaying", this.continueGame.bind(this));
 
   this.setup();
 }
@@ -25,7 +25,7 @@ GameManager.prototype.restart = function () {
 };
 
 // Keep playing after winning
-GameManager.prototype.keepPlaying = function () {
+GameManager.prototype.continueGame = function () {
   this.keepPlaying = true;
   this.submitted = false; // Reset submission flag to allow final score submission
   this.actuator.continue();

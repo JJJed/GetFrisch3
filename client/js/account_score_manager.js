@@ -7,8 +7,7 @@ function AccountScoreManager() {
   this.bestScore = 0;
   this.initialized = false;
 
-  // Initialize with server data on creation
-  this.initialize();
+  // Initialize will be called explicitly after construction
 }
 
 /**

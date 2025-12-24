@@ -2,13 +2,18 @@
 var gameManager;
 
 // Initialize the game with appropriate score manager
-function initializeGame() {
+async function initializeGame() {
   // Use AccountScoreManager if authenticated, otherwise LocalScoreManager
   var ScoreManager = apiClient.isAuthenticated() ? AccountScoreManager : LocalScoreManager;
 
   // Wait till the browser is ready to render the game (avoids glitches)
-  window.requestAnimationFrame(function () {
+  window.requestAnimationFrame(async function () {
     gameManager = new GameManager(4, KeyboardInputManager, HTMLActuator, ScoreManager);
+
+    // Wait for score manager to initialize if it has async initialization
+    if (gameManager.scoreManager.initialized === false && gameManager.scoreManager.initialize) {
+      await gameManager.scoreManager.initialize();
+    }
   });
 }
 
