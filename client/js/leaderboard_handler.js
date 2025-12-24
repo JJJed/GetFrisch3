@@ -234,6 +234,36 @@ async function submitGameScore(gameData) {
     console.error('Failed to submit game:', error);
     console.error('Error details:', error.message);
 
+    // Handle 401 Unauthorized (expired or invalid token)
+    if (error.status === 401) {
+      console.warn('Authentication failed - token may be expired');
+
+      // Clear expired authentication
+      if (typeof apiClient !== 'undefined') {
+        apiClient.clearAuth();
+        updateUserInfo(null);
+      }
+
+      // Show auth modal to prompt re-login
+      if (typeof showAuthModal === 'function') {
+        showAuthModal();
+      }
+
+      // Notify user
+      alert('Your session has expired. Please log in again to submit your score.');
+
+      // Remote log the 401 error
+      if (typeof remoteLogger !== 'undefined') {
+        await remoteLogger.warn('Game submission failed - session expired', {
+          score: gameData.score,
+          moves_count: gameData.moves_count,
+          error_message: 'HTTP 401 - Token expired or invalid'
+        });
+      }
+
+      return false;
+    }
+
     // Remote log the error with full details
     if (typeof remoteLogger !== 'undefined') {
       await remoteLogger.error('Game submission failed', {

@@ -130,6 +130,33 @@ GameManager.prototype.submitGameToServer = async function () {
   // Check if user is authenticated
   if (typeof apiClient === 'undefined' || !apiClient.isAuthenticated()) {
     console.log('User not authenticated, skipping server submission');
+
+    // Show auth modal to allow user to log in
+    if (typeof showAuthModal === 'function') {
+      showAuthModal();
+    }
+
+    return;
+  }
+
+  // Verify token is still valid before submitting
+  try {
+    await apiClient.getCurrentUser();
+  } catch (error) {
+    console.warn('Token validation failed before submission:', error);
+
+    // Clear expired auth
+    apiClient.clearAuth();
+    if (typeof updateUserInfo === 'function') {
+      updateUserInfo(null);
+    }
+
+    // Show auth modal
+    if (typeof showAuthModal === 'function') {
+      showAuthModal();
+    }
+
+    alert('Your session has expired. Please log in again to submit your score.');
     return;
   }
 
