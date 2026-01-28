@@ -1,0 +1,21 @@
+{
+  "approved_images": {
+    "central": "central.png",
+    "flatbush": "flatbush.png",
+    "frisch": "frisch.png",
+    "drs": "drs.png",
+    "ska": "ska.png",
+    "haftr": "haftr.jpg",
+    "heschel": "heschel.png",
+    "mta": "mta.jpg",
+    "maayanot": "maayanot.png",
+    "tabc": "tabc.png",
+    "kushner": "kushner.jpg",
+    "sar": "sar.jpg",
+    "ramaz": "ramaz.png",
+    "ciner": "ciner.jpg",
+    "idf": "idf.jpg",
+    "israel": "israel.png"
+  },
+  "valid_tile_values": [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384]
+}
