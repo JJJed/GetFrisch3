@@ -64,7 +64,7 @@ def get_leaderboard():
             .all()
 
         leaderboard_data = []
-        rank = 1
+        rank = offset + 1
         for game in top_games:
             game_dict = game.to_dict()
             game_dict['rank'] = rank
