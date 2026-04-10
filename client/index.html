@@ -1072,7 +1072,7 @@
   <div id="authModal" class="modal" role="dialog" aria-modal="true" aria-label="Authentication">
     <div class="modal-content">
       <div style="overflow: auto; margin-bottom: 10px;">
-        <span class="close" onclick="closeAuthModal()" role="button" aria-label="Close" tabindex="0">&times;</span>
+        <span class="close" role="button" aria-label="Close" tabindex="0">&times;</span>
         <h2 id="authTitle" style="margin: 0; padding-top: 10px;">Welcome to GetFrisch</h2>
       </div>
 
@@ -1081,7 +1081,7 @@
         <div id="anonymousForm" class="auth-form">
           <h3>Play Anonymously</h3>
           <input type="text" id="anonUsername" placeholder="Enter your name" required>
-          <button onclick="loginAnonymous()">Start Playing</button>
+          <button>Start Playing</button>
 
           <div class="auth-divider"><span>or</span></div>
 
@@ -1090,7 +1090,7 @@
           </div>
 
           <div class="auth-toggle">
-            <a onclick="showRegisterForm()">create an account</a> | <a onclick="showLoginForm()">login</a>
+            <a>create an account</a> | <a>login</a>
           </div>
         </div>
 
@@ -1099,7 +1099,7 @@
           <h3>Login</h3>
           <input type="text" id="loginUsername" placeholder="Username" required>
           <input type="password" id="loginPassword" placeholder="Password" required>
-          <button onclick="login()">Login</button>
+          <button>Login</button>
 
           <div class="auth-divider"><span>or</span></div>
 
@@ -1108,7 +1108,7 @@
           </div>
 
           <div class="auth-toggle">
-            <a onclick="showAnonymousForm()">Play anonymously</a> | <a onclick="showRegisterForm()">Create account</a>
+            <a>Play anonymously</a> | <a>Create account</a>
           </div>
         </div>
 
@@ -1118,7 +1118,7 @@
           <input type="text" id="regUsername" placeholder="Username" required>
           <input type="email" id="regEmail" placeholder="Email (optional)">
           <input type="password" id="regPassword" placeholder="Password (min 6 chars)" required>
-          <button onclick="register()">Create Account</button>
+          <button>Create Account</button>
 
           <div class="auth-divider"><span>or</span></div>
 
@@ -1127,7 +1127,7 @@
           </div>
 
           <div class="auth-toggle">
-            <a onclick="showAnonymousForm()">Play anonymously</a> | <a onclick="showLoginForm()">Login</a>
+            <a>Play anonymously</a> | <a>Login</a>
           </div>
         </div>
       </div>
@@ -1143,8 +1143,8 @@
       <p style="color: var(--color-text-muted); margin-bottom: 20px;">Welcome! Please choose a username for your account.</p>
 
       <div class="auth-form">
-        <input type="text" id="googleUsername" placeholder="Enter username" required maxlength="20" onkeypress="if(event.key==='Enter') completeGoogleSignup()">
-        <button onclick="completeGoogleSignup()">Continue</button>
+        <input type="text" id="googleUsername" placeholder="Enter username" required maxlength="20">
+        <button>Continue</button>
         <div id="usernameError" class="error-message"></div>
       </div>
     </div>
@@ -1154,15 +1154,15 @@
   <div id="schoolModal" class="modal" style="display: none;" role="dialog" aria-modal="true" aria-label="Set school">
     <div class="modal-content">
       <div style="overflow: auto; margin-bottom: 10px;">
-        <span class="close" onclick="closeSchoolModal()" role="button" aria-label="Close" tabindex="0">&times;</span>
+        <span class="close" role="button" aria-label="Close" tabindex="0">&times;</span>
         <h2 style="margin: 0; padding-top: 10px;">Set Your School</h2>
       </div>
       <p style="color: var(--color-text-muted); margin-bottom: 20px;">This will be displayed on the leaderboard next to your name.</p>
 
       <div class="auth-form">
-        <input type="text" id="schoolInput" placeholder="Enter your school name (max 15 chars)" maxlength="15" onkeypress="if(event.key==='Enter') saveSchool()">
-        <button onclick="saveSchool()">Save</button>
-        <button onclick="clearSchool()" style="background-color: var(--color-gray);">Clear School</button>
+        <input type="text" id="schoolInput" placeholder="Enter your school name (max 15 chars)" maxlength="15">
+        <button id="saveSchoolBtn">Save</button>
+        <button id="clearSchoolBtn" style="background-color: var(--color-gray);">Clear School</button>
         <div id="schoolError" class="error-message"></div>
       </div>
     </div>
@@ -1172,15 +1172,15 @@
   <div id="replayModal" class="modal" style="display: none;" role="dialog" aria-modal="true" aria-label="Game replay">
     <div class="modal-content" style="max-width: 360px;">
       <div style="overflow: auto; margin-bottom: 10px;">
-        <span class="close" onclick="closeReplay()" role="button" aria-label="Close" tabindex="0">&times;</span>
+        <span class="close" role="button" aria-label="Close" tabindex="0">&times;</span>
         <h2 style="margin: 0; padding-top: 10px;">Game Replay</h2>
       </div>
       <div id="replay-board" class="replay-board"></div>
       <div class="replay-controls">
-        <button id="replay-back" onclick="replayStepBack()" class="replay-ctrl-btn" aria-label="Step back">&#x25C0;</button>
-        <button id="replay-play" onclick="replayTogglePlay()" class="replay-ctrl-btn replay-play-btn">Play</button>
-        <button id="replay-fwd" onclick="replayStepFwd()" class="replay-ctrl-btn" aria-label="Step forward">&#x25B6;</button>
-        <select id="replay-speed" onchange="replaySetSpeed(this.value)" class="replay-speed-select">
+        <button id="replay-back" class="replay-ctrl-btn" aria-label="Step back">&#x25C0;</button>
+        <button id="replay-play" class="replay-ctrl-btn replay-play-btn">Play</button>
+        <button id="replay-fwd" class="replay-ctrl-btn" aria-label="Step forward">&#x25B6;</button>
+        <select id="replay-speed" class="replay-speed-select">
           <option value="500">0.5x</option>
           <option value="300" selected>1x</option>
           <option value="150">2x</option>
@@ -1194,10 +1194,10 @@
   <div class="container">
     <!-- Top Controls -->
     <div class="top-controls">
-      <button onclick="toggleGameMute()" class="icon-btn" aria-label="Toggle sound" title="Toggle sound">
+      <button id="muteToggleBtn" class="icon-btn" aria-label="Toggle sound" title="Toggle sound">
         <span id="muteIcon">&#x1F50A;</span>
       </button>
-      <button id="darkModeToggle" onclick="toggleDarkMode()" class="icon-btn" aria-label="Toggle dark mode" title="Toggle dark mode">
+      <button id="darkModeToggle" class="icon-btn" aria-label="Toggle dark mode" title="Toggle dark mode">
         <span id="darkModeIcon">&#x263E;</span>
       </button>
     </div>
@@ -1206,7 +1206,7 @@
     <div id="userInfo" class="user-info card"></div>
 
     <div id="authButtons" class="auth-buttons">
-      <button onclick="showAuthModal()">Login / Register</button>
+      <button>Login / Register</button>
     </div>
 
     <!-- Game Card -->
@@ -1226,7 +1226,7 @@
         <div class="lower">
 	        <a class="keep-playing-button">Keep going</a>
           <a class="retry-button">Try again</a>
-          <a class="share-button" onclick="shareGame()">Share</a>
+          <a class="share-button">Share</a>
         </div>
       </div>
 
@@ -1273,11 +1273,11 @@
       <h3 style="margin: 0 0 16px 0; color: var(--color-primary);">Your Stats</h3>
       <div id="profile-stats-grid" class="stats-grid"></div>
       <div style="text-align: center; margin-top: 16px;">
-        <button id="toggle-history-btn" onclick="toggleHistory()" style="background: none; border: 1px solid var(--color-gray); color: var(--color-text); padding: 8px 16px; border-radius: var(--radius-sm); cursor: pointer; font-size: 14px;">View Game History</button>
+        <button id="toggle-history-btn" style="background: none; border: 1px solid var(--color-gray); color: var(--color-text); padding: 8px 16px; border-radius: var(--radius-sm); cursor: pointer; font-size: 14px;">View Game History</button>
       </div>
       <div id="profile-history-section" style="display: none; margin-top: 16px;">
         <div id="profile-history-list"></div>
-        <button id="history-load-more" onclick="loadMoreHistory()" style="display:none; width:100%; padding:10px; margin-top:10px; background:var(--color-surface-alt); border:1px solid var(--color-border); border-radius:var(--radius-sm); cursor:pointer; font-size:14px; color:var(--color-text-muted);">Load More</button>
+        <button id="history-load-more" style="display:none; width:100%; padding:10px; margin-top:10px; background:var(--color-surface-alt); border:1px solid var(--color-border); border-radius:var(--radius-sm); cursor:pointer; font-size:14px; color:var(--color-text-muted);">Load More</button>
       </div>
     </div>
 
@@ -1288,23 +1288,23 @@
 
 	  <!-- Leaderboard Tabs -->
 	  <div class="lb-tabs">
-	    <button class="lb-tab lb-tab-active" data-tab="players" onclick="switchLeaderboardTab('players')">Players</button>
-	    <button class="lb-tab" data-tab="schools" onclick="switchLeaderboardTab('schools')">Schools</button>
+	    <button class="lb-tab lb-tab-active" data-tab="players">Players</button>
+	    <button class="lb-tab" data-tab="schools">Schools</button>
 	  </div>
 
 	  <!-- Leaderboard Filters -->
 	  <div id="leaderboard-filters" class="lb-filters">
-	    <select id="school-filter" onchange="setSchoolFilter(this.value)" class="lb-select">
+	    <select id="school-filter" class="lb-select">
 	      <option value="">All Schools</option>
 	    </select>
 	    <div class="lb-period-btns">
-	      <button class="period-btn period-active" data-period="all" onclick="setPeriodFilter(null)">All Time</button>
-	      <button class="period-btn" data-period="week" onclick="setPeriodFilter('week')">This Week</button>
-	      <button class="period-btn" data-period="today" onclick="setPeriodFilter('today')">Today</button>
+	      <button class="period-btn period-active" data-period="all">All Time</button>
+	      <button class="period-btn" data-period="week">This Week</button>
+	      <button class="period-btn" data-period="today">Today</button>
 	    </div>
 	  </div>
 	  <div style="text-align: center; margin: 20px 0;">
-	    <button class="vote-btn" onclick="window.open('https://docs.google.com/forms/d/e/1FAIpQLSeSS8AC_Z0FrtSu4qS28rapr0WfIA7chX62vTNu-aUeAw3KYw/viewform?usp=dialog', '_blank')">Vote to Replace a School</button>
+	    <button class="vote-btn">Vote to Replace a School</button>
 	  </div>
 	  <div id="leaderboard-container" aria-live="polite">
 	    <table class="skeleton-table"><tbody id="skeleton-rows"></tbody></table>
@@ -1369,6 +1369,9 @@
   <script src="js/leaderboard_handler.js"></script>
   <script src="js/profile_panel.js"></script>
   <script src="js/replay_viewer.js"></script>
+
+  <!-- Event binding (replaces inline onclick handlers) -->
+  <script src="js/event_binder.js"></script>
 
   <!-- Debug utilities (for testing) - DISABLED IN PRODUCTION -->
   <!-- <script src="js/debug_utils.js"></script> -->

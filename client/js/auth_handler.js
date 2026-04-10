@@ -519,7 +519,7 @@ async function saveSchool() {
     return;
   }
 
-  const btn = document.querySelector('#schoolModal button[onclick="saveSchool()"]');
+  const btn = document.getElementById('saveSchoolBtn');
   setButtonLoading(btn, true);
 
   try {
