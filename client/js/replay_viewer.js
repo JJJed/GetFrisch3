@@ -204,6 +204,7 @@ var ReplayViewer = (function () {
     moveHistory = [];
 
     modal.style.display = 'block';
+    if (typeof FocusTrap !== 'undefined') FocusTrap.activate(modal);
     boardEl.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--color-text-muted);">Loading replay...</div>';
 
     try {
@@ -222,6 +223,7 @@ var ReplayViewer = (function () {
   function close() {
     pause();
     if (modal) modal.style.display = 'none';
+    if (typeof FocusTrap !== 'undefined') FocusTrap.deactivate();
   }
 
   // Global handlers

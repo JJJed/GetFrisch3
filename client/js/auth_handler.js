@@ -19,13 +19,16 @@ function setButtonLoading(button, isLoading) {
 
 // Show/hide auth modal
 function showAuthModal() {
-  document.getElementById('authModal').style.display = 'block';
+  var modal = document.getElementById('authModal');
+  modal.style.display = 'block';
   showAnonymousForm();
+  if (typeof FocusTrap !== 'undefined') FocusTrap.activate(modal);
 }
 
 function closeAuthModal() {
   document.getElementById('authModal').style.display = 'none';
   clearAuthError();
+  if (typeof FocusTrap !== 'undefined') FocusTrap.deactivate();
 }
 
 // Form switching
@@ -248,6 +251,7 @@ function showUsernameModal() {
   errorDiv.style.display = 'none';
 
   modal.style.display = 'block';
+  if (typeof FocusTrap !== 'undefined') FocusTrap.activate(modal);
   input.focus();
 }
 
@@ -256,6 +260,7 @@ function closeUsernameModal() {
   const modal = document.getElementById('usernameModal');
   modal.style.display = 'none';
   pendingGoogleData = null;
+  if (typeof FocusTrap !== 'undefined') FocusTrap.deactivate();
 }
 
 // Complete Google sign-up with chosen username
@@ -473,59 +478,6 @@ window.onclick = function(event) {
   }
 }
 
-// Escape key to close modals
-document.addEventListener('keydown', function (e) {
-  if (e.key === 'Escape') {
-    var replayModal = document.getElementById('replayModal');
-    if (replayModal && replayModal.style.display !== 'none') {
-      if (typeof closeReplay === 'function') closeReplay();
-      return;
-    }
-
-    var schoolModal = document.getElementById('schoolModal');
-    if (schoolModal && schoolModal.style.display !== 'none') {
-      closeSchoolModal();
-      return;
-    }
-
-    var usernameModal = document.getElementById('usernameModal');
-    if (usernameModal && usernameModal.style.display !== 'none') {
-      return; // Can't escape username selection
-    }
-
-    var authModal = document.getElementById('authModal');
-    if (authModal && authModal.style.display !== 'none' && apiClient.isAuthenticated()) {
-      closeAuthModal();
-    }
-  }
-});
-
-// Focus trapping for modals
-document.addEventListener('keydown', function (e) {
-  if (e.key !== 'Tab') return;
-
-  var activeModal = document.querySelector('.modal[style*="display: block"], .modal:not([style*="display: none"])[role="dialog"]');
-  if (!activeModal || activeModal.style.display === 'none') return;
-
-  var focusable = activeModal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-  if (focusable.length === 0) return;
-
-  var first = focusable[0];
-  var last = focusable[focusable.length - 1];
-
-  if (e.shiftKey) {
-    if (document.activeElement === first) {
-      last.focus();
-      e.preventDefault();
-    }
-  } else {
-    if (document.activeElement === last) {
-      first.focus();
-      e.preventDefault();
-    }
-  }
-});
-
 // School Modal Functions
 function showSchoolModal() {
   const modal = document.getElementById('schoolModal');
@@ -541,12 +493,14 @@ function showSchoolModal() {
   errorDiv.style.display = 'none';
 
   modal.style.display = 'block';
+  if (typeof FocusTrap !== 'undefined') FocusTrap.activate(modal);
   input.focus();
 }
 
 function closeSchoolModal() {
   const modal = document.getElementById('schoolModal');
   modal.style.display = 'none';
+  if (typeof FocusTrap !== 'undefined') FocusTrap.deactivate();
 }
 
 async function saveSchool() {
