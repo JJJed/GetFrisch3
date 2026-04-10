@@ -359,14 +359,19 @@ function switchLeaderboardTab(tab) {
   var filtersEl = document.getElementById('leaderboard-filters');
   var paginationEl = document.getElementById('leaderboard-pagination');
 
+  var rankBanner = document.getElementById('user-rank-banner');
+  var schoolBanner = document.getElementById('school-rank-banner');
+
   if (tab === 'schools') {
-    // Hide player filters/pagination, load school data
     if (filtersEl) filtersEl.style.display = 'none';
     if (paginationEl) paginationEl.style.display = 'none';
+    if (rankBanner) rankBanner.style.display = 'none';
     loadSchoolLeaderboard();
   } else {
     if (filtersEl) filtersEl.style.display = 'flex';
     if (paginationEl) paginationEl.style.display = 'flex';
+    if (schoolBanner) schoolBanner.style.display = 'none';
+    if (rankBanner && userRankLoaded) rankBanner.style.display = 'flex';
     loadLeaderboard(true);
   }
 }
@@ -386,12 +391,47 @@ async function loadSchoolLeaderboard() {
 
 function renderSchoolLeaderboard(schools) {
   var container = document.getElementById('leaderboard-container');
+  var schoolBanner = document.getElementById('school-rank-banner');
 
   if (!schools || schools.length === 0) {
     container.innerHTML = '<p style="text-align:center;color:var(--color-text-muted);">No schools with 3+ players yet.</p>';
+    if (schoolBanner) schoolBanner.style.display = 'none';
     return;
   }
 
+  // Show school banner if user has a school
+  var userSchool = null;
+  if (apiClient && apiClient.isAuthenticated()) {
+    var user = apiClient.getStoredUser();
+    if (user) userSchool = user.school;
+  }
+
+  if (schoolBanner && userSchool) {
+    var match = null;
+    for (var i = 0; i < schools.length; i++) {
+      if (schools[i].school === userSchool) { match = schools[i]; break; }
+    }
+    if (match) {
+      schoolBanner.innerHTML =
+        '<span class="rank-badge">#' + match.rank + '</span>' +
+        '<span class="rank-detail">' +
+          '<strong>' + match.school + '</strong>' +
+          '<span class="rank-sep">&middot;</span>' +
+          match.player_count + ' players' +
+          '<span class="rank-sep">&middot;</span>' +
+          'Avg: ' + Math.round(match.avg_score).toLocaleString() +
+        '</span>';
+      schoolBanner.style.display = 'flex';
+    } else {
+      schoolBanner.innerHTML =
+        '<span class="rank-detail">' + userSchool + ' needs 3+ players to qualify</span>';
+      schoolBanner.style.display = 'flex';
+    }
+  } else if (schoolBanner) {
+    schoolBanner.style.display = 'none';
+  }
+
+  // Highlight user's school row
   var html = '<table class="leaderboard-table">';
   html += '<thead><tr>';
   html += '<th>Rank</th>';
@@ -404,7 +444,8 @@ function renderSchoolLeaderboard(schools) {
   html += '<tbody>';
 
   schools.forEach(function (s) {
-    html += '<tr>';
+    var rowClass = (userSchool && s.school === userSchool) ? ' class="current-player-row"' : '';
+    html += '<tr' + rowClass + '>';
     html += '<td class="rank">#' + s.rank + '</td>';
     html += '<td><strong>' + s.school + '</strong></td>';
     html += '<td>' + s.player_count + '</td>';
