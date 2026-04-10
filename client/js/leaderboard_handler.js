@@ -236,6 +236,7 @@ function renderLeaderboard(leaderboard) {
     const rank = game.rank || (startRank + index + 1);
     const verifiedBadge = game.is_verified ? '<span class="verified">✓</span>' : '';
     const winBadge = game.is_win ? '<span style="color: var(--color-primary); margin-left: 4px;">&#x1F451;</span>' : '';
+    const devBadge = game.user_id === 1 ? '<span class="dev-badge" title="Developer">&lt;/&gt;</span>' : '';
 
     // Format date
     let dateStr = 'N/A';
@@ -251,7 +252,7 @@ function renderLeaderboard(leaderboard) {
 
     html += `<tr${rowClass}>`;
     html += `<td class="rank">#${rank}</td>`;
-    html += `<td><span class="player-name">${game.username}${verifiedBadge}${winBadge}</span></td>`;
+    html += `<td><span class="player-name">${game.username}${verifiedBadge}${devBadge}${winBadge}</span></td>`;
     html += `<td>${schoolDisplay}</td>`;
     html += `<td><strong>${game.score.toLocaleString()}</strong></td>`;
     html += `<td class="best-tile">${getTileSchoolDisplay(game.best_tile)}</td>`;
