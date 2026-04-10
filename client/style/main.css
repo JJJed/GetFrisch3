@@ -1,15 +1,112 @@
 @import url(fonts/clear-sans.css);
+
+:root {
+  /* Brand colors */
+  --color-primary: #A31F34;
+  --color-primary-dark: #8A1829;
+  --color-gray: #8A8B8C;
+  --color-gray-dark: #6A6B6C;
+  --color-text: #222;
+  --color-text-muted: #666;
+  --color-bright-text: #f9f6f2;
+
+  /* Surface colors */
+  --color-surface: #FAFAF8;
+  --color-surface-alt: #F2F0ED;
+  --color-white: #fff;
+  --color-modal-bg: #fefefe;
+  --color-card-border: #696968;
+
+  /* Game colors */
+  --color-game-bg: #8A8B8C;
+  --color-grid-cell: #C2C0BF;
+  --color-tile-base: #eee4da;
+  --color-tile-gold: #edc22e;
+  --color-game-btn: #8f7a66;
+
+  /* Feedback colors */
+  --color-success: #2E7D32;
+  --color-success-light: #4CAF50;
+  --color-warning: #E65100;
+  --color-error: #C62828;
+  --color-error-text: #d32f2f;
+  --color-gold: #C49A2A;
+
+  /* Spacing & radii */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-tile: 3px;
+  --radius-card: 5px;
+
+  /* Shadows */
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-modal: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --shadow-container: 3px 3px 5px 3px rgba(0, 0, 0, 0.35);
+
+  /* Borders */
+  --color-border: #ddd;
+  --color-border-light: #eee;
+  --color-hover-bg: #f5f5f5;
+  --color-close: #aaa;
+  --color-close-hover: #000;
+  --color-modal-border: #888;
+
+  /* Transitions */
+  --transition-speed: 100ms;
+  --transition-fast: 0.2s;
+}
+
+/* Dark mode overrides */
+html.dark {
+  --color-primary: #D4384F;
+  --color-primary-dark: #B82E42;
+  --color-gray: #5A5B5C;
+  --color-gray-dark: #4A4B4C;
+  --color-text: #E8E8E8;
+  --color-text-muted: #999;
+  --color-bright-text: #f9f6f2;
+
+  --color-surface: #1A1A2E;
+  --color-surface-alt: #2A2A40;
+  --color-white: #262640;
+  --color-modal-bg: #2A2A44;
+  --color-card-border: #3A3A50;
+
+  --color-game-bg: #3A3A50;
+  --color-grid-cell: #4A4A60;
+  --color-tile-base: #3E3E52;
+  --color-game-btn: #5A5A70;
+
+  --color-error-text: #EF5350;
+  --color-success-light: #66BB6A;
+
+  --color-border: #3A3A50;
+  --color-border-light: #2A2A40;
+  --color-hover-bg: rgba(255, 255, 255, 0.05);
+  --color-close: #777;
+  --color-close-hover: #E8E8E8;
+  --color-modal-border: #3A3A50;
+
+  --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.3);
+  --shadow-modal: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-container: none;
+}
+
+html.dark body {
+  background: linear-gradient(135deg, #0F0F1A 0%, #1A1A2E 50%, #16162A 100%);
+}
+
+html.dark .tile .tile-inner {
+  border: 2px solid rgba(255, 255, 255, 0.08);
+}
+
+
 html, body {
   margin: 0;
   padding: 0;
-  background: url(https://scontent-a.xx.fbcdn.net/hphotos-prn2/t31.0-8/1502678_10100298599491097_828497142_o.jpg);
+  background: linear-gradient(135deg, #FAF8F5 0%, #F0E8E4 50%, #E8DDD8 100%);
   background-attachment: fixed;
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
-  color: black;
-  color: #222;
+  color: var(--color-text);
   font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
   font-size: 18px; }
 
@@ -21,7 +118,7 @@ html, body {
 h1.title {
   font-size: 64px;
   font-weight: bold;
-  color: #A31F34;
+  color: var(--color-primary);
   margin: 0;
   display: block;
   float: left; }
@@ -60,13 +157,13 @@ h1.title {
 .score-container, .best-container {
   position: relative;
   display: inline-block;
-  background: #8A8B8C;
+  background: var(--color-gray);
   padding: 15px 25px;
   font-size: 20px;
   height: 25px;
   line-height: 47px;
   font-weight: bold;
-  border-radius: 3px;
+  border-radius: var(--radius-tile);
   color: white;
   margin-top: 8px;
   text-align: center; }
@@ -79,7 +176,7 @@ h1.title {
     font-size: 13px;
     line-height: 13px;
     text-align: center;
-    color: #eee4da; }
+    color: var(--color-tile-base); }
   .score-container .score-addition, .best-container .score-addition {
     position: absolute;
     right: 30px;
@@ -108,7 +205,7 @@ p {
   line-height: 1.65; }
 
 a {
-  color: #A31F34;
+  color: var(--color-primary);
   font-weight: bold;
   text-decoration: underline;
   cursor: pointer; }
@@ -122,17 +219,14 @@ hr {
   margin: 15px 0; }
 
 .container {
-  padding: 80px 150px;
-  background: #fff;
-  border: 1px solid #696968;
-  border-top: 4px solid #9d3c3c;
-  border-radius: 0px 0px 5px 5px;
-  -moz-border-radius: 0px 0px 5px 5px;
-  -webkit-box-shadow: 3px 3px 5px 3px rgba(0, 0, 0, 0.35);
-  box-shadow: 3px 3px 5px 3px rgba(0, 0, 0, 0.35);
+  padding: 40px 30px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
   width: 90%;
   margin: 0 auto;
-  max-width: 500px;}
+  max-width: 520px;}
 
 @-webkit-keyframes fade-in {
   0% {
@@ -162,8 +256,8 @@ hr {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -moz-user-select: none;
-  background: #8A8B8C;
-  border-radius: 6px;
+  background: var(--color-game-bg);
+  border-radius: var(--radius-sm);
   width: 500px;
   height: 500px;
   -webkit-box-sizing: border-box;
@@ -196,11 +290,11 @@ hr {
       margin-top: 59px; }
     .game-container .game-message a {
       display: inline-block;
-      background: #8f7a66;
-      border-radius: 3px;
+      background: var(--color-game-btn);
+      border-radius: var(--radius-tile);
       padding: 0 20px;
       text-decoration: none;
-      color: #f9f6f2;
+      color: var(--color-bright-text);
       height: 40px;
       line-height: 42px;
       margin-left: 9px; }
@@ -208,7 +302,7 @@ hr {
         display: none; }
     .game-container .game-message.game-won {
       background: rgba(237, 194, 46, 0.5);
-      color: #f9f6f2; }
+      color: var(--color-bright-text); }
       .game-container .game-message.game-won a.keep-playing-button {
         display: inline-block; }
     .game-container .game-message.game-won, .game-container .game-message.game-over {
@@ -232,8 +326,8 @@ hr {
   height: 106.25px;
   margin-right: 15px;
   float: left;
-  border-radius: 3px;
-  background: #C2C0BF; }
+  border-radius: var(--radius-tile);
+  background: var(--color-grid-cell); }
   .grid-cell:last-child {
     margin-right: 0; }
 
@@ -319,8 +413,8 @@ hr {
   -moz-transition-property: -moz-transform;
   transition-property: transform; }
   .tile .tile-inner {
-    border-radius: 3px;
-    background: #eee4da;
+    border-radius: var(--radius-tile);
+    background: var(--color-tile-base);
     text-align: center;
     font-weight: bold;
     z-index: 10;
@@ -513,6 +607,13 @@ hr {
   -moz-animation-fill-mode: backwards;
   animation-fill-mode: backwards; }
 
+.card {
+  background: var(--color-white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  padding: 24px;
+  margin-bottom: 20px; }
+
 .game-intro {
   margin: 10px 0; }
 
@@ -531,9 +632,14 @@ hr {
     margin-top: 5px; }
 
   .container {
-    width: 280px;
+    width: 100%;
+    max-width: 320px;
     margin: 0 auto;
-    padding: 50px; }
+    padding: 10px 0; }
+
+  .card {
+    padding: 16px;
+    margin-bottom: 12px; }
 
   .score-container, .best-container {
     margin-top: 0;
@@ -545,14 +651,14 @@ hr {
     margin-bottom: 10px; }
 
   .game-container {
-    
+
     position: relative;
     padding: 10px;
     cursor: default;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -moz-user-select: none;
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
     width: 280px;
     height: 280px;
     -webkit-box-sizing: border-box;
@@ -585,11 +691,11 @@ hr {
         margin-top: 59px; }
       .game-container .game-message a {
         display: inline-block;
-        background: #8f7a66;
-        border-radius: 3px;
+        background: var(--color-game-btn);
+        border-radius: var(--radius-tile);
         padding: 0 20px;
         text-decoration: none;
-        color: #f9f6f2;
+        color: var(--color-bright-text);
         height: 40px;
         line-height: 42px;
         margin-left: 9px; }
@@ -597,7 +703,7 @@ hr {
           display: none; }
       .game-container .game-message.game-won {
         background: rgba(237, 194, 46, 0.5);
-        color: #f9f6f2; }
+        color: var(--color-bright-text); }
         .game-container .game-message.game-won a.keep-playing-button {
           display: inline-block; }
       .game-container .game-message.game-won, .game-container .game-message.game-over {
@@ -621,7 +727,7 @@ hr {
     height: 57.5px;
     margin-right: 10px;
     float: left;
-    border-radius: 3px; }
+    border-radius: var(--radius-tile); }
     .grid-cell:last-child {
       margin-right: 0; }
 

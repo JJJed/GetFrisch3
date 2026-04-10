@@ -37,6 +37,7 @@ HTMLActuator.prototype.actuate = function (grid, metadata) {
           'event_category' : 'Loss',
           'value' : 1
         });
+        if (typeof GameAudio !== 'undefined') GameAudio.playGameOver();
         self.message(false); // You lose
       } else if (metadata.won) {
         gtag('event', 'Game_Played', {
@@ -142,10 +143,32 @@ HTMLActuator.prototype.updateBestScore = function (bestScore) {
 
 HTMLActuator.prototype.message = function (won) {
   var type    = won ? "game-won" : "game-over";
-  var message = won ? "You win!" : "Game over!";
+  var message = won ? "You reached Frisch!" : "Game over!";
 
   this.messageContainer.classList.add(type);
   this.messageContainer.getElementsByTagName("p")[0].textContent = message;
+
+  // Show stats under the win/loss message
+  var statsEl = this.messageContainer.querySelector('.game-stats');
+  if (statsEl) statsEl.parentNode.removeChild(statsEl);
+
+  if (typeof gameManager !== 'undefined') {
+    var score = gameManager.score;
+    var moves = gameManager.moveHistory ? gameManager.moveHistory.length : 0;
+    var duration = gameManager.gameStartTime ? Math.floor((Date.now() - gameManager.gameStartTime) / 1000) : 0;
+    var mins = Math.floor(duration / 60);
+    var secs = duration % 60;
+    var timeStr = mins > 0 ? mins + 'm ' + secs + 's' : secs + 's';
+
+    var div = document.createElement('div');
+    div.className = 'game-stats';
+    div.innerHTML = '<span>Score: <strong>' + score.toLocaleString() + '</strong></span>' +
+      '<span>Moves: <strong>' + moves + '</strong></span>' +
+      '<span>Time: <strong>' + timeStr + '</strong></span>';
+
+    var lower = this.messageContainer.querySelector('.lower');
+    this.messageContainer.insertBefore(div, lower);
+  }
 };
 
 HTMLActuator.prototype.clearMessage = function () {

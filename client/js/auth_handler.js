@@ -3,6 +3,20 @@
  * Manages user authentication UI and state
  */
 
+// Button loading state utility
+function setButtonLoading(button, isLoading) {
+  if (isLoading) {
+    button._originalText = button.textContent;
+    button.disabled = true;
+    button.classList.add('btn-loading');
+    button.innerHTML = '<span class="btn-spinner"></span>';
+  } else {
+    button.disabled = false;
+    button.classList.remove('btn-loading');
+    button.textContent = button._originalText || '';
+  }
+}
+
 // Show/hide auth modal
 function showAuthModal() {
   document.getElementById('authModal').style.display = 'block';
@@ -57,6 +71,9 @@ async function loginAnonymous() {
     return;
   }
 
+  const btn = document.querySelector('#anonymousForm button');
+  setButtonLoading(btn, true);
+
   try {
     const result = await apiClient.loginAnonymous(username);
     console.log('Anonymous login successful:', result);
@@ -76,6 +93,8 @@ async function loginAnonymous() {
     initializeGame();
   } catch (error) {
     showAuthError(error.message);
+  } finally {
+    setButtonLoading(btn, false);
   }
 }
 
@@ -87,6 +106,9 @@ async function login() {
     showAuthError('Please enter username and password');
     return;
   }
+
+  const btn = document.querySelector('#loginForm button');
+  setButtonLoading(btn, true);
 
   try {
     const result = await apiClient.login(username, password);
@@ -108,6 +130,8 @@ async function login() {
     initializeGame();
   } catch (error) {
     showAuthError(error.message);
+  } finally {
+    setButtonLoading(btn, false);
   }
 }
 
@@ -125,6 +149,9 @@ async function register() {
     showAuthError('Password must be at least 6 characters');
     return;
   }
+
+  const btn = document.querySelector('#registerForm button');
+  setButtonLoading(btn, true);
 
   try {
     const result = await apiClient.register(username, password, email || null);
@@ -146,6 +173,8 @@ async function register() {
     initializeGame();
   } catch (error) {
     showAuthError(error.message);
+  } finally {
+    setButtonLoading(btn, false);
   }
 }
 
@@ -264,6 +293,9 @@ async function completeGoogleSignup() {
     return;
   }
 
+  const btn = document.querySelector('#usernameModal button');
+  setButtonLoading(btn, true);
+
   try {
     // Complete registration
     const result = await apiClient.completeGoogleSignup(username, pendingGoogleData);
@@ -287,6 +319,8 @@ async function completeGoogleSignup() {
     console.error('Username selection failed:', error);
     errorDiv.textContent = error.message || 'Failed to complete registration. Please try again.';
     errorDiv.style.display = 'block';
+  } finally {
+    setButtonLoading(btn, false);
   }
 }
 
@@ -313,10 +347,20 @@ function updateUserInfo(user) {
     `;
     userInfoDiv.style.display = 'block';
     authButtonsDiv.style.display = 'none';
+
+    // Show profile panel for non-anonymous users
+    if (!user.is_anonymous && typeof ProfilePanel !== 'undefined') {
+      ProfilePanel.show();
+    } else if (typeof ProfilePanel !== 'undefined') {
+      ProfilePanel.hide();
+    }
   } else {
     // User is not authenticated
     userInfoDiv.style.display = 'none';
     authButtonsDiv.style.display = 'flex';
+    if (typeof ProfilePanel !== 'undefined') {
+      ProfilePanel.hide();
+    }
   }
 }
 
@@ -422,7 +466,65 @@ window.onclick = function(event) {
   if (event.target == schoolModal) {
     closeSchoolModal();
   }
+
+  const replayModal = document.getElementById('replayModal');
+  if (event.target == replayModal && typeof closeReplay === 'function') {
+    closeReplay();
+  }
 }
+
+// Escape key to close modals
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape') {
+    var replayModal = document.getElementById('replayModal');
+    if (replayModal && replayModal.style.display !== 'none') {
+      if (typeof closeReplay === 'function') closeReplay();
+      return;
+    }
+
+    var schoolModal = document.getElementById('schoolModal');
+    if (schoolModal && schoolModal.style.display !== 'none') {
+      closeSchoolModal();
+      return;
+    }
+
+    var usernameModal = document.getElementById('usernameModal');
+    if (usernameModal && usernameModal.style.display !== 'none') {
+      return; // Can't escape username selection
+    }
+
+    var authModal = document.getElementById('authModal');
+    if (authModal && authModal.style.display !== 'none' && apiClient.isAuthenticated()) {
+      closeAuthModal();
+    }
+  }
+});
+
+// Focus trapping for modals
+document.addEventListener('keydown', function (e) {
+  if (e.key !== 'Tab') return;
+
+  var activeModal = document.querySelector('.modal[style*="display: block"], .modal:not([style*="display: none"])[role="dialog"]');
+  if (!activeModal || activeModal.style.display === 'none') return;
+
+  var focusable = activeModal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  if (focusable.length === 0) return;
+
+  var first = focusable[0];
+  var last = focusable[focusable.length - 1];
+
+  if (e.shiftKey) {
+    if (document.activeElement === first) {
+      last.focus();
+      e.preventDefault();
+    }
+  } else {
+    if (document.activeElement === last) {
+      first.focus();
+      e.preventDefault();
+    }
+  }
+});
 
 // School Modal Functions
 function showSchoolModal() {
@@ -463,6 +565,9 @@ async function saveSchool() {
     return;
   }
 
+  const btn = document.querySelector('#schoolModal button[onclick="saveSchool()"]');
+  setButtonLoading(btn, true);
+
   try {
     const result = await apiClient.updateSchool(school);
     console.log('School updated:', result);
@@ -480,11 +585,13 @@ async function saveSchool() {
     updateUserInfo(result.user);
 
     // Show success message
-    alert('School updated successfully!');
+    Toast.show('School updated successfully!', 'success');
   } catch (error) {
     console.error('Failed to update school:', error);
     errorDiv.textContent = error.message || 'Failed to update school. Please try again.';
     errorDiv.style.display = 'block';
+  } finally {
+    setButtonLoading(btn, false);
   }
 }
 
@@ -497,7 +604,7 @@ async function clearSchool() {
     updateUserInfo(result.user);
 
     // Show success message
-    alert('School cleared successfully!');
+    Toast.show('School cleared successfully!', 'success');
   } catch (error) {
     console.error('Failed to clear school:', error);
     const errorDiv = document.getElementById('schoolError');
@@ -505,3 +612,147 @@ async function clearSchool() {
     errorDiv.style.display = 'block';
   }
 }
+
+// ==========================================
+// Real-Time Form Validation
+// ==========================================
+
+var _usernameCheckTimer = null;
+
+function setFieldState(input, state, message) {
+  // Remove previous states
+  input.classList.remove('input-valid', 'input-error');
+  var feedback = input.parentNode.querySelector('.field-feedback');
+  if (!feedback) {
+    feedback = document.createElement('span');
+    feedback.className = 'field-feedback';
+    input.parentNode.insertBefore(feedback, input.nextSibling);
+  }
+
+  if (state === 'valid') {
+    input.classList.add('input-valid');
+    feedback.textContent = message || '';
+    feedback.className = 'field-feedback feedback-valid';
+  } else if (state === 'error') {
+    input.classList.add('input-error');
+    feedback.textContent = message || '';
+    feedback.className = 'field-feedback feedback-error';
+  } else {
+    feedback.textContent = '';
+    feedback.className = 'field-feedback';
+  }
+}
+
+function validateUsernameFormat(value) {
+  if (!value) return null;
+  if (value.length < 3) return 'Must be at least 3 characters';
+  if (value.length > 20) return 'Must be 20 characters or less';
+  if (!/^[a-zA-Z0-9_]+$/.test(value)) return 'Letters, numbers, and underscores only';
+  return null;
+}
+
+function checkUsernameAvailability(input) {
+  var value = input.value.trim();
+  var formatError = validateUsernameFormat(value);
+  if (formatError) {
+    setFieldState(input, 'error', formatError);
+    return;
+  }
+  if (!value) {
+    setFieldState(input, '', '');
+    return;
+  }
+
+  // Debounce the server check
+  clearTimeout(_usernameCheckTimer);
+  _usernameCheckTimer = setTimeout(async function () {
+    try {
+      var result = await apiClient.checkUsername(value);
+      if (result.available) {
+        setFieldState(input, 'valid', 'Available');
+      } else {
+        setFieldState(input, 'error', 'Username taken');
+      }
+    } catch (e) {
+      // Don't show error for network issues during typing
+      setFieldState(input, '', '');
+    }
+  }, 300);
+}
+
+function validateEmail(input) {
+  var value = input.value.trim();
+  if (!value) {
+    setFieldState(input, '', '');
+    return;
+  }
+  var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (emailRegex.test(value)) {
+    setFieldState(input, 'valid', '');
+  } else {
+    setFieldState(input, 'error', 'Invalid email format');
+  }
+}
+
+function validatePassword(input) {
+  var value = input.value;
+  if (!value) {
+    setFieldState(input, '', '');
+    return;
+  }
+
+  var strength = 0;
+  if (value.length >= 6) strength++;
+  if (value.length >= 10) strength++;
+  if (/[A-Z]/.test(value) && /[a-z]/.test(value)) strength++;
+  if (/[0-9]/.test(value)) strength++;
+  if (/[^a-zA-Z0-9]/.test(value)) strength++;
+
+  if (value.length < 6) {
+    setFieldState(input, 'error', 'Min 6 characters');
+  } else if (strength <= 2) {
+    setFieldState(input, 'error', 'Weak');
+    input.classList.remove('input-error');
+    input.classList.add('input-warning');
+  } else if (strength <= 3) {
+    setFieldState(input, 'valid', 'Medium');
+  } else {
+    setFieldState(input, 'valid', 'Strong');
+  }
+}
+
+// Attach validation listeners after DOM is ready
+window.addEventListener('DOMContentLoaded', function () {
+  // Registration form
+  var regUsername = document.getElementById('regUsername');
+  var regEmail = document.getElementById('regEmail');
+  var regPassword = document.getElementById('regPassword');
+
+  if (regUsername) {
+    regUsername.addEventListener('blur', function () { checkUsernameAvailability(regUsername); });
+    regUsername.addEventListener('input', function () {
+      var err = validateUsernameFormat(regUsername.value.trim());
+      if (err) setFieldState(regUsername, 'error', err);
+      else setFieldState(regUsername, '', '');
+    });
+  }
+
+  if (regEmail) {
+    regEmail.addEventListener('blur', function () { validateEmail(regEmail); });
+  }
+
+  if (regPassword) {
+    regPassword.addEventListener('input', function () { validatePassword(regPassword); });
+  }
+
+  // Google username modal
+  var googleUsername = document.getElementById('googleUsername');
+  if (googleUsername) {
+    googleUsername.addEventListener('blur', function () { checkUsernameAvailability(googleUsername); });
+    googleUsername.addEventListener('input', function () {
+      var err = validateUsernameFormat(googleUsername.value.trim());
+      if (err) setFieldState(googleUsername, 'error', err);
+      else setFieldState(googleUsername, '', '');
+    });
+  }
+});

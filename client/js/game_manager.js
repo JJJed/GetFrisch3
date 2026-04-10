@@ -156,7 +156,7 @@ GameManager.prototype.submitGameToServer = async function () {
       showAuthModal();
     }
 
-    alert('Your session has expired. Please log in again to submit your score.');
+    Toast.show('Session expired — please log in again', 'warning');
     return;
   }
 
@@ -205,6 +205,7 @@ GameManager.prototype.submitGameToServer = async function () {
     var result = await submitGameScore(gameData);
     if (result) {
       console.log('Game submitted successfully!');
+      Toast.show('Score submitted!', 'success');
 
       // Track in Google Analytics
       if (typeof gtag !== 'undefined') {
@@ -214,9 +215,12 @@ GameManager.prototype.submitGameToServer = async function () {
           'value': this.score
         });
       }
+    } else {
+      Toast.show('Score submission failed', 'error');
     }
   } catch (error) {
     console.error('Failed to submit game:', error);
+    Toast.show('Score submission failed', 'error');
   }
 };
 
@@ -295,8 +299,15 @@ GameManager.prototype.move = function (direction) {
             }
           }
 
+          // Sound on merge
+          if (typeof GameAudio !== 'undefined') GameAudio.playMerge();
+
           // The mighty 2048 tile
-          if (merged.value === 2048) self.won = true;
+          if (merged.value === 2048) {
+            self.won = true;
+            if (typeof Confetti !== 'undefined') Confetti.burst();
+            if (typeof GameAudio !== 'undefined') GameAudio.playWin();
+          }
         } else {
           self.moveTile(tile, positions.farthest);
         }
@@ -309,6 +320,9 @@ GameManager.prototype.move = function (direction) {
   });
 
   if (moved) {
+    // Sound on slide
+    if (typeof GameAudio !== 'undefined') GameAudio.playSlide();
+
     // Record the move in history
     this.moveHistory.push({
       direction: direction,

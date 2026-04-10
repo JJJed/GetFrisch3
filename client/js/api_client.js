@@ -275,8 +275,11 @@ class APIClient {
   /**
    * Get the global leaderboard
    */
-  async getLeaderboard(limit = 100) {
-    return await this.request(`/leaderboard/?limit=${limit}`);
+  async getLeaderboard(limit = 100, offset = 0, school = null, period = null) {
+    let url = `/leaderboard/?limit=${limit}&offset=${offset}`;
+    if (school) url += `&school=${encodeURIComponent(school)}`;
+    if (period) url += `&period=${encodeURIComponent(period)}`;
+    return await this.request(url);
   }
 
   /**
@@ -298,6 +301,10 @@ class APIClient {
    */
   async getRecentGames(limit = 20) {
     return await this.request(`/leaderboard/recent?limit=${limit}`);
+  }
+
+  async getSchoolLeaderboard() {
+    return await this.request('/leaderboard/schools');
   }
 }
 

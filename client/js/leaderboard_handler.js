@@ -79,7 +79,8 @@ function initializeSocket() {
       });
     }
 
-    renderLeaderboard(data.leaderboard);
+    // Use API-based loading to respect filters/pagination
+    loadLeaderboard(false);
   });
 
   socket.on('leaderboard_changed', (data) => {
@@ -93,8 +94,8 @@ function initializeSocket() {
       });
     }
 
-    // Refresh leaderboard when a new score is submitted
-    socket.emit('request_leaderboard');
+    // Refresh leaderboard via API (respects current filters/page)
+    loadLeaderboard(false);
   });
 
   socket.on('error', (data) => {
@@ -102,10 +103,42 @@ function initializeSocket() {
   });
 }
 
+// Leaderboard state
+var leaderboardState = {
+  page: 0,
+  perPage: 25,
+  school: null,
+  period: null,
+  allSchools: [],
+  currentData: [],
+  total: 0
+};
+
 // Load leaderboard via API
-async function loadLeaderboard() {
+async function loadLeaderboard(resetPage) {
+  if (resetPage) leaderboardState.page = 0;
+
+  var offset = leaderboardState.page * leaderboardState.perPage;
   try {
-    const data = await apiClient.getLeaderboard(100);
+    const data = await apiClient.getLeaderboard(
+      leaderboardState.perPage,
+      offset,
+      leaderboardState.school,
+      leaderboardState.period
+    );
+    leaderboardState.currentData = data.leaderboard || [];
+    leaderboardState.total = data.total || 0;
+
+    // Collect unique schools for the filter dropdown
+    if (leaderboardState.allSchools.length === 0 && data.leaderboard) {
+      var schools = {};
+      data.leaderboard.forEach(function (g) {
+        if (g.school && g.school !== '-') schools[g.school] = true;
+      });
+      leaderboardState.allSchools = Object.keys(schools).sort();
+      renderSchoolFilter();
+    }
+
     renderLeaderboard(data.leaderboard);
   } catch (error) {
     console.error('Failed to load leaderboard:', error);
@@ -114,14 +147,79 @@ async function loadLeaderboard() {
   }
 }
 
+function renderSchoolFilter() {
+  var filterBar = document.getElementById('leaderboard-filters');
+  if (!filterBar) return;
+
+  var select = document.getElementById('school-filter');
+  if (!select) return;
+
+  // Keep existing option + add schools
+  var existing = select.querySelector('option[value=""]');
+  select.innerHTML = '';
+  if (existing) select.appendChild(existing);
+  else {
+    var opt = document.createElement('option');
+    opt.value = '';
+    opt.textContent = 'All Schools';
+    select.appendChild(opt);
+  }
+
+  leaderboardState.allSchools.forEach(function (s) {
+    var opt = document.createElement('option');
+    opt.value = s;
+    opt.textContent = s;
+    select.appendChild(opt);
+  });
+}
+
+function setSchoolFilter(school) {
+  leaderboardState.school = school || null;
+  loadLeaderboard(true);
+}
+
+function setPeriodFilter(period) {
+  leaderboardState.period = period || null;
+
+  // Update active button state
+  document.querySelectorAll('.period-btn').forEach(function (btn) {
+    btn.classList.remove('period-active');
+  });
+  var activeBtn = document.querySelector('.period-btn[data-period="' + (period || 'all') + '"]');
+  if (activeBtn) activeBtn.classList.add('period-active');
+
+  loadLeaderboard(true);
+}
+
+function leaderboardPrev() {
+  if (leaderboardState.page > 0) {
+    leaderboardState.page--;
+    loadLeaderboard(false);
+  }
+}
+
+function leaderboardNext() {
+  if (leaderboardState.currentData.length >= leaderboardState.perPage) {
+    leaderboardState.page++;
+    loadLeaderboard(false);
+  }
+}
+
 // Render leaderboard table
 function renderLeaderboard(leaderboard) {
   const container = document.getElementById('leaderboard-container');
 
   if (!leaderboard || leaderboard.length === 0) {
-    container.innerHTML = '<p style="text-align: center; color: #666;">No scores yet. Be the first!</p>';
+    container.innerHTML = '<p style="text-align: center; color: var(--color-text-muted);">No scores yet. Be the first!</p>';
+    renderPagination();
     return;
   }
+
+  // Get current user for highlighting
+  var currentUser = (typeof apiClient !== 'undefined') ? apiClient.getStoredUser() : null;
+  var currentUsername = currentUser ? currentUser.username : null;
+
+  var startRank = leaderboardState.page * leaderboardState.perPage;
 
   let html = '<table class="leaderboard-table">';
   html += '<thead><tr>';
@@ -135,9 +233,9 @@ function renderLeaderboard(leaderboard) {
   html += '<tbody>';
 
   leaderboard.forEach((game, index) => {
-    const rank = game.rank || (index + 1);
+    const rank = game.rank || (startRank + index + 1);
     const verifiedBadge = game.is_verified ? '<span class="verified">✓</span>' : '';
-    const winBadge = game.is_win ? '<span style="color: #A31F34; margin-left: 4px;">👑</span>' : '';
+    const winBadge = game.is_win ? '<span style="color: var(--color-primary); margin-left: 4px;">&#x1F451;</span>' : '';
 
     // Format date
     let dateStr = 'N/A';
@@ -148,14 +246,118 @@ function renderLeaderboard(leaderboard) {
 
     // Format school or show '-' if not set
     const schoolDisplay = game.school || '-';
+    const isCurrentUser = currentUsername && game.username === currentUsername;
+    const rowClass = isCurrentUser ? ' class="current-player-row"' : '';
 
-    html += '<tr>';
+    html += `<tr${rowClass}>`;
     html += `<td class="rank">#${rank}</td>`;
     html += `<td><span class="player-name">${game.username}${verifiedBadge}${winBadge}</span></td>`;
     html += `<td>${schoolDisplay}</td>`;
     html += `<td><strong>${game.score.toLocaleString()}</strong></td>`;
     html += `<td class="best-tile">${getTileSchoolDisplay(game.best_tile)}</td>`;
     html += `<td>${dateStr}</td>`;
+    html += '</tr>';
+  });
+
+  html += '</tbody></table>';
+  container.innerHTML = html;
+
+  renderPagination();
+
+  // Auto-scroll to current player row if on this page
+  var playerRow = container.querySelector('.current-player-row');
+  if (playerRow) {
+    playerRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+function renderPagination() {
+  var pag = document.getElementById('leaderboard-pagination');
+  if (!pag) return;
+
+  var page = leaderboardState.page;
+  var hasMore = leaderboardState.currentData.length >= leaderboardState.perPage;
+
+  pag.innerHTML = '';
+  if (page > 0 || hasMore) {
+    var prevBtn = '<button onclick="leaderboardPrev()" ' + (page === 0 ? 'disabled' : '') + ' class="lb-page-btn">Previous</button>';
+    var pageLabel = '<span class="lb-page-label">Page ' + (page + 1) + '</span>';
+    var nextBtn = '<button onclick="leaderboardNext()" ' + (!hasMore ? 'disabled' : '') + ' class="lb-page-btn">Next</button>';
+    pag.innerHTML = prevBtn + pageLabel + nextBtn;
+  }
+}
+
+// ==========================================
+// School Leaderboard Tab
+// ==========================================
+
+var currentLeaderboardTab = 'players';
+
+function switchLeaderboardTab(tab) {
+  currentLeaderboardTab = tab;
+
+  // Update tab UI
+  document.querySelectorAll('.lb-tab').forEach(function (t) {
+    t.classList.remove('lb-tab-active');
+  });
+  var activeTab = document.querySelector('.lb-tab[data-tab="' + tab + '"]');
+  if (activeTab) activeTab.classList.add('lb-tab-active');
+
+  var filtersEl = document.getElementById('leaderboard-filters');
+  var paginationEl = document.getElementById('leaderboard-pagination');
+
+  if (tab === 'schools') {
+    // Hide player filters/pagination, load school data
+    if (filtersEl) filtersEl.style.display = 'none';
+    if (paginationEl) paginationEl.style.display = 'none';
+    loadSchoolLeaderboard();
+  } else {
+    if (filtersEl) filtersEl.style.display = 'flex';
+    if (paginationEl) paginationEl.style.display = 'flex';
+    loadLeaderboard(true);
+  }
+}
+
+async function loadSchoolLeaderboard() {
+  var container = document.getElementById('leaderboard-container');
+  container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--color-text-muted);">Loading...</div>';
+
+  try {
+    var data = await apiClient.getSchoolLeaderboard();
+    renderSchoolLeaderboard(data.schools || []);
+  } catch (error) {
+    console.error('Failed to load school leaderboard:', error);
+    container.innerHTML = '<div class="error-message">Failed to load school leaderboard</div>';
+  }
+}
+
+function renderSchoolLeaderboard(schools) {
+  var container = document.getElementById('leaderboard-container');
+
+  if (!schools || schools.length === 0) {
+    container.innerHTML = '<p style="text-align:center;color:var(--color-text-muted);">No schools with 3+ players yet.</p>';
+    return;
+  }
+
+  var html = '<table class="leaderboard-table">';
+  html += '<thead><tr>';
+  html += '<th>Rank</th>';
+  html += '<th>School</th>';
+  html += '<th>Players</th>';
+  html += '<th>Avg Score</th>';
+  html += '<th>Best Score</th>';
+  html += '<th>Games</th>';
+  html += '</tr></thead>';
+  html += '<tbody>';
+
+  schools.forEach(function (s) {
+    html += '<tr>';
+    html += '<td class="rank">#' + s.rank + '</td>';
+    html += '<td><strong>' + s.school + '</strong></td>';
+    html += '<td>' + s.player_count + '</td>';
+    html += '<td><strong>' + Math.round(s.avg_score).toLocaleString() + '</strong></td>';
+    html += '<td>' + s.best_score.toLocaleString() + '</td>';
+    html += '<td>' + s.total_games + '</td>';
     html += '</tr>';
   });
 
@@ -250,7 +452,7 @@ async function submitGameScore(gameData) {
       }
 
       // Notify user
-      alert('Your session has expired. Please log in again to submit your score.');
+      Toast.show('Session expired — please log in again', 'warning');
 
       // Remote log the 401 error
       if (typeof remoteLogger !== 'undefined') {
