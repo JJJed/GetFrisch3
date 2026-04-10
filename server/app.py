@@ -110,6 +110,12 @@ def handle_leaderboard_request():
     except Exception as e:
         emit('error', {'message': str(e)})
 
+@app.after_request
+def add_cache_headers(response):
+    if request.path.startswith('/meta/'):
+        response.headers['Cache-Control'] = 'public, max-age=604800'  # 1 week
+    return response
+
 # Error handlers
 @app.errorhandler(404)
 def not_found(error):
