@@ -820,6 +820,45 @@
       color: var(--color-primary);
       border-bottom-color: var(--color-primary);
     }
+    /* User Rank Banner */
+    .rank-banner {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: var(--color-surface-alt);
+      border-radius: var(--radius-sm);
+      margin-bottom: 14px;
+      border-left: 4px solid var(--color-primary);
+    }
+    .rank-badge {
+      font-size: 22px;
+      font-weight: bold;
+      color: var(--color-primary);
+      white-space: nowrap;
+    }
+    .rank-detail {
+      font-size: 14px;
+      color: var(--color-text-muted);
+    }
+    .rank-detail strong {
+      color: var(--color-primary);
+    }
+    .rank-sep {
+      margin: 0 6px;
+      opacity: 0.4;
+    }
+
+    @media screen and (max-width: 520px) {
+      .rank-banner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+      }
+      .rank-badge { font-size: 18px; }
+      .rank-detail { font-size: 13px; }
+    }
+
     /* Leaderboard Filters */
     .lb-filters {
       display: flex;
@@ -1291,6 +1330,9 @@
 	    <button class="lb-tab lb-tab-active" data-tab="players">Players</button>
 	    <button class="lb-tab" data-tab="schools">Schools</button>
 	  </div>
+
+	  <!-- User Rank Banner -->
+	  <div id="user-rank-banner" class="rank-banner" style="display: none;"></div>
 
 	  <!-- Leaderboard Filters -->
 	  <div id="leaderboard-filters" class="lb-filters">

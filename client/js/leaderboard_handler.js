@@ -288,6 +288,59 @@ function renderPagination() {
 }
 
 // ==========================================
+// User Rank Banner
+// ==========================================
+
+var userRankLoaded = false;
+
+async function loadUserRank() {
+  var banner = document.getElementById('user-rank-banner');
+  if (!banner) return;
+  if (!apiClient || !apiClient.isAuthenticated()) {
+    banner.style.display = 'none';
+    return;
+  }
+
+  var user = apiClient.getStoredUser();
+  if (!user || !user.id) {
+    banner.style.display = 'none';
+    return;
+  }
+
+  try {
+    var data = await apiClient.getUserRank(user.id);
+    if (!data || data.rank === null) {
+      banner.style.display = 'none';
+      return;
+    }
+
+    var rank = data.rank;
+    var total = data.total_players;
+    var pct = data.percentile;
+    var score = data.best_score;
+
+    var pctLabel = '';
+    if (pct >= 99) pctLabel = 'Top 1%';
+    else if (pct >= 90) pctLabel = 'Top ' + Math.round(100 - pct) + '%';
+    else pctLabel = 'Top ' + Math.round(100 - pct) + '%';
+
+    banner.innerHTML =
+      '<span class="rank-badge">#' + rank + '</span>' +
+      '<span class="rank-detail">' +
+        'out of ' + total + ' players' +
+        '<span class="rank-sep">&middot;</span>' +
+        '<strong>' + pctLabel + '</strong>' +
+        '<span class="rank-sep">&middot;</span>' +
+        'Best: ' + score.toLocaleString() +
+      '</span>';
+    banner.style.display = 'flex';
+    userRankLoaded = true;
+  } catch (e) {
+    banner.style.display = 'none';
+  }
+}
+
+// ==========================================
 // School Leaderboard Tab
 // ==========================================
 
@@ -392,6 +445,9 @@ async function submitGameScore(gameData) {
     if (result.validated) {
       console.log('Game validated and submitted successfully');
 
+      // Refresh user rank
+      loadUserRank();
+
       // Remote log success
       if (typeof remoteLogger !== 'undefined') {
         await remoteLogger.info('Game submission successful', {
@@ -493,4 +549,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // Load initial leaderboard
   loadLeaderboard();
+
+  // Load user rank (if authenticated)
+  loadUserRank();
 });

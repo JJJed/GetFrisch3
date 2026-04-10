@@ -113,9 +113,19 @@ def get_user_rank(user_id):
 
         rank = higher_players + 1
 
+        # Total players with validated games (for percentile)
+        total_players = db.session.query(Game.user_id)\
+            .filter(Game.is_validated == True, Game.is_flagged == False)\
+            .group_by(Game.user_id)\
+            .count()
+
+        percentile = round((1 - (rank - 1) / total_players) * 100, 1) if total_players > 0 else 0
+
         return jsonify({
             'user': user.to_dict(),
             'rank': rank,
+            'total_players': total_players,
+            'percentile': percentile,
             'best_score': best_game.score,
             'best_game': best_game.to_dict()
         }), 200
