@@ -252,7 +252,7 @@ function renderLeaderboard(leaderboard) {
 
     html += `<tr${rowClass}>`;
     html += `<td class="rank">#${rank}</td>`;
-    html += `<td><span class="player-name">${game.username}${verifiedBadge}${devBadge}${winBadge}</span></td>`;
+    html += `<td><span class="player-name">${game.username}${verifiedBadge}${winBadge}${devBadge}</span></td>`;
     html += `<td>${schoolDisplay}</td>`;
     html += `<td><strong>${game.score.toLocaleString()}</strong></td>`;
     html += `<td class="best-tile">${getTileSchoolDisplay(game.best_tile)}</td>`;
